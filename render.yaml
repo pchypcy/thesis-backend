@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: thesis-backend
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      # ── ใส่ค่าจริงตอนสร้าง (sync: false = Render จะถามให้กรอก) ──
+      - key: MONGO_URI
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM_EMAIL
+        sync: false
+      # ── ค่าคงที่ (ไม่ลับ) ──
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: "465"
+      - key: SMTP_SECURE
+        value: "true"
+      - key: SMTP_FROM_NAME
+        value: InGreen
+      - key: DEMO_VOTER_IP_FROM_HEADER
+        value: "true"
