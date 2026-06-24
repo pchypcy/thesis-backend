@@ -23,6 +23,8 @@ const notificationsRoute = require('./routes/notifications'); // ★ SPRINT 4 (N
 const aiScanRoute          = require('./routes/aiScan');           // ★ SPRINT 5: AI receipt scan + rate limit
 const customerConfirmRoute = require('./routes/customerConfirm');  // ★ SPRINT 5: coupon confirm flow
 const healthReportRoute    = require('./routes/healthReport');     // ★ SPRINT 5: monthly health report
+const connectionsRoute     = require('./routes/connections');      // ★ Green Profile API: ฝั่งผู้ใช้ (consent)
+const partnerApiRoute      = require('./routes/partnerApi');       // ★ Green Profile API: ฝั่ง partner ภายนอก
 
 const app = express();
 
@@ -75,6 +77,8 @@ app.use('/api/coupons',        customerConfirmRoute); // ★ SPRINT 5: customer-
 app.use('/api/health-report',  healthReportRoute);    // ★ SPRINT 5: VIP monthly health report
 app.use('/api/settlements',    require('./routes/settlements'));   // ★ v3: merchant settlement/payout
 app.use('/api/admin/allergen-groups', require('./routes/allergenGroups')); // ★ SPRINT 6: admin CRUD กลุ่มอาหารแพ้
+app.use('/api/connections', connectionsRoute);   // ★ Green Profile API: ผู้ใช้คุมการแชร์ (grant/revoke/audit)
+app.use('/api/partner',     partnerApiRoute);     // ★ Green Profile API: endpoint สำหรับแอปภายนอก (MockFood)
 
 app.get('/', (req, res) => res.send('InGreen Backend is Running! 🌿'));
 
