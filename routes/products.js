@@ -217,6 +217,10 @@ router.get('/pending/list', async (req, res) => {
             items.push({
                 barcode: p.barcode, name: p.name, brand: p.brand, image_url: p.image_url,
                 ingredients: p.ingredients, submitted_by: p.submitted_by, createdAt: p.createdAt,
+                // ★ รายละเอียดเต็มที่ผู้ใช้กรอก/แนบมา — ให้ชุมชนตรวจสอบได้ครบ
+                marketing_text: p.marketing_text, label_photo: p.label_photo,
+                sugar_g: p.sugar_g, sodium_mg: p.sodium_mg, fat_g: p.fat_g, energy_kcal: p.energy_kcal,
+                fda_number: p.fda_number, verification_tier: p.verification_tier, data_source: p.data_source,
                 upvotes: p.upvotes, downvotes: p.downvotes,
                 // ★ SPRINT 7 voting progress
                 weighted_up: tally.weightedUp, weighted_down: tally.weightedDown,
