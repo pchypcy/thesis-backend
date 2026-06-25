@@ -8,6 +8,7 @@
 const express   = require('express');
 const mongoose  = require('mongoose');
 const cors      = require('cors');
+const path      = require('path');
 require('dotenv').config();
 
 const productRoute  = require('./routes/products'); 
@@ -79,6 +80,10 @@ app.use('/api/settlements',    require('./routes/settlements'));   // ★ v3: me
 app.use('/api/admin/allergen-groups', require('./routes/allergenGroups')); // ★ SPRINT 6: admin CRUD กลุ่มอาหารแพ้
 app.use('/api/connections', connectionsRoute);   // ★ Green Profile API: ผู้ใช้คุมการแชร์ (grant/revoke/audit)
 app.use('/api/partner',     partnerApiRoute);     // ★ Green Profile API: endpoint สำหรับแอปภายนอก (MockFood)
+
+// ★ MockFood demo (partner app จำลอง) — เปิดด้วย /mockfood?ct=<consent_token>
+//   ให้แอป InGreen redirect มาพร้อม token → เชื่อมอัตโนมัติ ไม่ต้องกรอกรหัสจับคู่
+app.get('/mockfood', (req, res) => res.sendFile(path.join(__dirname, 'public', 'mockfood.html')));
 
 app.get('/', (req, res) => res.send('InGreen Backend is Running! 🌿'));
 

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MockFood</title>
+<script src="https://cdn.jsdelivr.net/npm/iconify-icon@2/dist/iconify-icon.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: 'Segoe UI', system-ui, 'Sukhumvit Set', sans-serif; background: #DDE1E4; color: #1b1b1b; display: flex; justify-content: center; padding: 16px; }
+  .app { width: 100%; max-width: 430px; background: #F4F5F7; border-radius: 30px; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,.18); position: relative; }
+
+  /* ── app bar ── */
+  .appbar { background: #00B14F; color: #fff; padding: 16px 16px 14px; display: flex; align-items: center; gap: 12px; }
+  .appbar .ic { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,.18); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .appbar .title { font-size: 17px; font-weight: 800; flex: 1; letter-spacing: -.2px; }
+
+  /* ── hero / restaurant ── */
+  .hero { height: 130px; background: linear-gradient(135deg,#00B14F 0%,#0a8f45 60%,#0b7d3e 100%); position: relative; }
+  .hero .emojis { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 14px; font-size: 40px; opacity: .35; }
+  .promo { position: absolute; left: 14px; bottom: 12px; background: #FFD400; color: #5a3d00; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 8px; display: flex; align-items: center; gap: 5px; }
+  .rest { background: #fff; margin: -22px 14px 0; border-radius: 18px; padding: 15px 16px; box-shadow: 0 8px 24px rgba(0,0,0,.08); position: relative; }
+  .rest h1 { font-size: 20px; font-weight: 800; letter-spacing: -.3px; user-select: none; }
+  .rest .meta { display: flex; align-items: center; gap: 6px; margin-top: 7px; font-size: 12.5px; color: #555; flex-wrap: wrap; }
+  .rest .dot { color: #ccc; }
+  .rest .star { color: #00B14F; font-weight: 800; display: inline-flex; align-items: center; gap: 3px; }
+  .rest .cats { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
+  .rest .cat { font-size: 11px; background: #F1F3F2; color: #666; padding: 3px 9px; border-radius: 7px; }
+
+  /* ── InGreen connection strip ── */
+  .ingreen { margin: 12px 14px 0; border-radius: 14px; padding: 12px 13px; display: flex; align-items: center; gap: 10px; cursor: pointer;
+             background: #F4FBEE; border: 1.5px solid #CDE9B6; }
+  .ingreen.on { background: linear-gradient(120deg,#EAF7E0,#F4FBEE); border-color: #8DD06A; }
+  .ingreen .badge { width: 38px; height: 38px; border-radius: 11px; background: #00B14F; display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; }
+  .ingreen .txt { flex: 1; min-width: 0; }
+  .ingreen .t1 { font-size: 13px; font-weight: 800; color: #1B5E37; display: flex; align-items: center; gap: 5px; }
+  .ingreen .t2 { font-size: 11px; color: #6a8a5a; margin-top: 2px; line-height: 1.4; }
+  .ingreen .cta { font-size: 12px; font-weight: 800; color: #fff; background: #00B14F; padding: 7px 13px; border-radius: 10px; flex-shrink: 0; }
+
+  .banner { margin: 12px 14px 0; background: #FCEBEB; color: #A32D2D; border-radius: 12px; padding: 11px 13px; font-size: 12px; display: none; align-items: center; gap: 8px; line-height: 1.4; }
+  .banner.show { display: flex; }
+
+  /* ── menu ── */
+  .menu { padding: 6px 14px 24px; }
+  .sec { font-size: 13px; color: #222; font-weight: 800; margin: 16px 2px 10px; display: flex; align-items: center; gap: 7px; }
+  .sec .pill { font-size: 10px; font-weight: 800; color: #00813a; background: #E7F6EC; padding: 2px 8px; border-radius: 20px; }
+  .card { background: #fff; border-radius: 16px; padding: 12px; margin-bottom: 11px; display: flex; gap: 12px; position: relative; box-shadow: 0 3px 10px rgba(0,0,0,.04); border-left: 4px solid transparent; }
+  .card.avoid { border-left-color: #E23744; }
+  .card.recommend { border-left-color: #00B14F; }
+  .card.ok { border-left-color: #E89938; }
+  .info { flex: 1; min-width: 0; }
+  .name { font-size: 14.5px; font-weight: 700; }
+  .ings { font-size: 11px; color: #999; margin-top: 3px; line-height: 1.45; }
+  .price { font-size: 14px; color: #1b1b1b; font-weight: 800; margin-top: 7px; }
+  .thumb-wrap { position: relative; flex-shrink: 0; }
+  .thumb { width: 72px; height: 72px; border-radius: 13px; background: #F1F3F2; display: flex; align-items: center; justify-content: center; font-size: 36px; }
+  .add { position: absolute; right: -6px; bottom: -6px; width: 28px; height: 28px; border-radius: 9px; background: #fff; border: 1.5px solid #e3e3e3; color: #00B14F; font-size: 20px; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,.1); cursor: pointer; }
+  .gscore { position: absolute; left: -4px; top: -6px; min-width: 30px; height: 22px; padding: 0 6px; border-radius: 11px; color: #fff; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 2px; box-shadow: 0 2px 6px rgba(0,0,0,.15); }
+  .alert { display: flex; align-items: center; gap: 7px; border-radius: 9px; padding: 7px 9px; margin-top: 8px; font-size: 11.5px; line-height: 1.35; }
+  .alert.bad { background: #FCEBEB; color: #A32D2D; }
+  .alert.good { background: #EAF7E0; color: #2D7016; }
+  .alert.warn { background: #FAEEDA; color: #854F0B; }
+  .flags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+  .flag { font-size: 10px; background: #F1F3F2; color: #777; padding: 2px 8px; border-radius: 7px; }
+
+  /* ── modal (connect / advanced) ── */
+  .overlay { position: fixed; inset: 0; background: rgba(20,30,15,.5); display: none; align-items: flex-end; justify-content: center; z-index: 40; }
+  .overlay.show { display: flex; }
+  .sheet { background: #fff; width: 100%; max-width: 430px; border-radius: 24px 24px 0 0; padding: 20px 20px 26px; }
+  .sheet .grip { width: 42px; height: 4px; border-radius: 3px; background: #ddd; margin: 0 auto 16px; }
+  .sheet .mhead { display: flex; align-items: center; gap: 11px; margin-bottom: 6px; }
+  .sheet .mlogo { width: 46px; height: 46px; border-radius: 12px; background: #00B14F; display: flex; align-items: center; justify-content: center; color: #fff; }
+  .sheet h2 { font-size: 17px; font-weight: 800; }
+  .sheet .msub { font-size: 12px; color: #888; margin-top: 1px; }
+  .sheet p.desc { font-size: 13px; color: #555; line-height: 1.55; margin: 14px 0 6px; }
+  .sheet label { display: block; font-size: 11px; color: #888; margin: 12px 0 4px; font-weight: 700; }
+  .sheet input { width: 100%; padding: 13px 14px; border-radius: 13px; border: 1.5px solid #E3E3E3; background: #FAFAFA; font-size: 14px; font-family: inherit; }
+  .sheet input:focus { outline: none; border-color: #00B14F; background: #fff; }
+  .hint { font-size: 11.5px; color: #8a8a8a; margin-top: 8px; line-height: 1.5; display: flex; gap: 6px; align-items: flex-start; }
+  .hint b { color: #00813a; }
+  .mbtns { display: flex; gap: 10px; margin-top: 20px; }
+  .mbtns button { flex: 1; padding: 14px; border: none; border-radius: 14px; font-weight: 800; font-size: 14px; cursor: pointer; font-family: inherit; }
+  .b-cancel { background: #fff; color: #888; border: 1.5px solid #ddd !important; flex: 1; }
+  .b-go { background: #00B14F; color: #fff; flex: 2; }
+  .adv-fields { display: none; }
+  .adv-fields.show { display: block; }
+
+  .toast { position: fixed; top: 24px; left: 50%; transform: translateX(-50%); background: #1b1b1b; color: #fff; padding: 11px 20px; border-radius: 24px; font-size: 13px; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 99; max-width: 90%; text-align: center; }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="appbar">
+    <div class="ic"><iconify-icon icon="mdi:arrow-left" width="20"></iconify-icon></div>
+    <div class="title">ครัวรักษ์โลก</div>
+    <div class="ic"><iconify-icon icon="mdi:magnify" width="20"></iconify-icon></div>
+    <div class="ic"><iconify-icon icon="mdi:cart-outline" width="20"></iconify-icon></div>
+  </div>
+
+  <div class="hero">
+    <div class="emojis">🥗 🍜 🍚 🍲 🥦</div>
+    <div class="promo"><iconify-icon icon="mdi:sale"></iconify-icon> ลด 50.- ส่งฟรี</div>
+  </div>
+
+  <div class="rest">
+    <h1 id="rest-title">ครัวรักษ์โลก</h1>
+    <div class="meta">
+      <span class="star"><iconify-icon icon="mdi:star"></iconify-icon> 4.8</span>
+      <span>(2.1k+)</span><span class="dot">•</span>
+      <span><iconify-icon icon="mdi:motorbike" style="vertical-align:-2px"></iconify-icon> 20-30 นาที</span>
+      <span class="dot">•</span><span>฿0 ค่าส่ง</span>
+    </div>
+    <div class="cats">
+      <span class="cat">อาหารตามสั่ง</span><span class="cat">เพื่อสุขภาพ</span><span class="cat">รักษ์โลก</span>
+    </div>
+  </div>
+
+  <!-- InGreen connection strip -->
+  <div class="ingreen" id="conn" onclick="onConnClick()">
+    <div class="badge"><iconify-icon icon="mdi:leaf" width="22"></iconify-icon></div>
+    <div class="txt">
+      <div class="t1" id="conn-t1"><iconify-icon icon="mdi:link-variant"></iconify-icon> เชื่อมบัญชี InGreen</div>
+      <div class="t2" id="conn-t2">รับคำเตือนเมนูที่คุณแพ้ และเมนูที่ดีต่อสุขภาพ เฉพาะคุณ</div>
+    </div>
+    <div class="cta" id="conn-cta">เชื่อม</div>
+  </div>
+
+  <div class="banner" id="banner"><iconify-icon icon="mdi:lock-alert"></iconify-icon><span id="banner-text"></span></div>
+  <div class="menu" id="menu"></div>
+</div>
+
+<!-- ── Connect InGreen modal ── -->
+<div class="overlay" id="connect-modal">
+  <div class="sheet">
+    <div class="grip"></div>
+    <div class="mhead">
+      <div class="mlogo"><iconify-icon icon="mdi:leaf" width="26"></iconify-icon></div>
+      <div><h2>เชื่อมต่อกับ InGreen</h2><div class="msub">เพื่อรับคำแนะนำอาหารที่เหมาะกับคุณ</div></div>
+    </div>
+    <p class="desc">ใส่รหัสเชื่อมต่อจากแอป InGreen ของคุณ แล้วเราจะช่วยเตือนเมนูที่คุณแพ้ และแนะนำเมนูที่ดีต่อสุขภาพให้โดยอัตโนมัติ</p>
+    <label>รหัสเชื่อมต่อ</label>
+    <input id="in-consent" placeholder="วางรหัสที่นี่" autocomplete="off" />
+    <div class="hint"><iconify-icon icon="mdi:information-outline" style="margin-top:1px"></iconify-icon>
+      <span>วิธีรับรหัส: เปิดแอป <b>InGreen</b> → ตั้งค่า → การเชื่อมต่อภายนอก → เชื่อม <b>“MockFood”</b> → คัดลอกรหัส</span></div>
+    <!-- advanced (ซ่อน — กดค้างที่ชื่อร้านเพื่อแสดง) -->
+    <div class="adv-fields" id="adv">
+      <label>API base URL (สำหรับนักพัฒนา)</label>
+      <input id="in-base" placeholder="https://thesis-backend-q3qm.onrender.com" />
+      <label>API key (partner)</label>
+      <input id="in-key" />
+    </div>
+    <div class="mbtns">
+      <button class="b-cancel" onclick="closeConnect()">ยกเลิก</button>
+      <button class="b-go" onclick="doConnect()">เชื่อมต่อ</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const MENU = [
+  { id:1, name:'ผัดไทยกุ้งสด',            price:75,  emoji:'🍤', ingredients:['shrimp','peanut','egg','fish sauce','rice noodle'], kcal:620, sodium_mg:1400, sugar_g:18, packaging:'plastic',     tags:['local'] },
+  { id:2, name:'สลัดเต้าหู้ออร์แกนิก',     price:89,  emoji:'🥗', ingredients:['tofu','lettuce','tomato','olive oil'],            kcal:320, sodium_mg:380,  sugar_g:6,  packaging:'compostable', tags:['organic','vegan','plant_based','local'] },
+  { id:3, name:'ข้าวมันไก่',              price:50,  emoji:'🍗', ingredients:['chicken','rice','soy sauce','garlic'],            kcal:590, sodium_mg:1100, sugar_g:4,  packaging:'paper',       tags:['local'] },
+  { id:4, name:'ต้มยำกุ้งน้ำข้น',         price:120, emoji:'🍲', ingredients:['shrimp','chili','milk','lemongrass'],             kcal:480, sodium_mg:1600, sugar_g:8,  packaging:'plastic',     tags:[] },
+  { id:5, name:'ข้าวกล้องผัดผักรวม (เจ)',  price:65,  emoji:'🍚', ingredients:['brown rice','mixed vegetable','tofu'],            kcal:410, sodium_mg:520,  sugar_g:5,  packaging:'compostable', tags:['vegan','plant_based','organic'] },
+];
+const FLAG_LABEL = { high_sodium:'โซเดียมสูง', watch_sodium:'ระวังโซเดียม', high_sugar:'น้ำตาลสูง', high_calorie:'แคลอรี่สูง', diabetes_caution:'ระวังเบาหวาน' };
+const REC = { avoid:{cls:'avoid'}, recommend:{cls:'recommend'}, ok:{cls:'ok'} };
+const DEFAULTS = { base:'https://thesis-backend-q3qm.onrender.com', key:'pk_live_mockfood_demo_001', consent:'' };
+
+const $=(id)=>document.getElementById(id);
+function getCfg(){ try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem('mockfood_cfg')||'{}') }; } catch { return {...DEFAULTS}; } }
+function setCfg(c){ localStorage.setItem('mockfood_cfg', JSON.stringify(c)); }
+
+function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(window._tt); window._tt=setTimeout(()=>t.classList.remove('show'),1900); }
+
+/* ── connect modal ── */
+function onConnClick(){ getCfg().consent ? getRecs() : openConnect(); }
+function openConnect(){ const c=getCfg(); $('in-consent').value=c.consent||''; $('in-base').value=c.base; $('in-key').value=c.key; $('connect-modal').classList.add('show'); }
+function closeConnect(){ $('connect-modal').classList.remove('show'); }
+function doConnect(){
+  const consent=$('in-consent').value.trim();
+  if(!consent){ toast('กรุณาใส่รหัสเชื่อมต่อ'); return; }
+  setCfg({ base:($('in-base').value.trim()||DEFAULTS.base).replace(/\/$/,''), key:$('in-key').value.trim()||DEFAULTS.key, consent });
+  closeConnect(); toast('กำลังเชื่อมต่อ…'); getRecs();
+}
+/* กดค้างที่ชื่อร้าน → เผยช่องตั้งค่าขั้นสูง (สำหรับนักพัฒนา/เดโม) */
+let _hold;
+const rt=$('rest-title');
+const holdStart=()=>{ _hold=setTimeout(()=>{ openConnect(); $('adv').classList.add('show'); toast('โหมดนักพัฒนา'); },700); };
+const holdEnd=()=>clearTimeout(_hold);
+rt.addEventListener('mousedown',holdStart); rt.addEventListener('touchstart',holdStart,{passive:true});
+rt.addEventListener('mouseup',holdEnd); rt.addEventListener('mouseleave',holdEnd); rt.addEventListener('touchend',holdEnd);
+
+function setConn(connected, subject){
+  const el=$('conn');
+  if(connected){
+    el.classList.add('on');
+    $('conn-t1').innerHTML='<iconify-icon icon="mdi:check-decagram" style="color:#00B14F"></iconify-icon> เชื่อม InGreen แล้ว';
+    $('conn-t2').textContent='เมนูถูกปรับให้เหมาะกับคุณแล้ว';
+    $('conn-cta').textContent='รีเฟรช';
+  } else {
+    el.classList.remove('on');
+    $('conn-t1').innerHTML='<iconify-icon icon="mdi:link-variant"></iconify-icon> เชื่อมบัญชี InGreen';
+    $('conn-t2').textContent='รับคำเตือนเมนูที่คุณแพ้ และเมนูที่ดีต่อสุขภาพ เฉพาะคุณ';
+    $('conn-cta').textContent='เชื่อม';
+  }
+}
+function banner(msg){ const b=$('banner'); if(!msg){ b.classList.remove('show'); return; } $('banner-text').textContent=msg; b.classList.add('show'); }
+function sevTH(s){ return ({mild:'เล็กน้อย',medium:'ปานกลาง',severe:'รุนแรง'})[s]||s; }
+function scoreColor(n){ return n>=80?'#00B14F':(n>=55?'#E89938':'#E23744'); }
+
+function renderMenu(results){
+  const byName={}; (results||[]).forEach(r=>byName[r.name]=r);
+  const personalized = !!results;
+  $('menu').innerHTML =
+    '<div class="sec">'+(personalized?'แนะนำสำหรับคุณ <span class="pill"><iconify-icon icon="mdi:leaf" style="vertical-align:-1px"></iconify-icon> InGreen</span>':'เมนูแนะนำ')+'</div>' +
+    MENU.map(m=>{
+      const r=byName[m.name];
+      let cls='', extra='', gscore='';
+      if(r){
+        cls=(REC[r.recommendation]||REC.ok).cls;
+        gscore='<div class="gscore" style="background:'+scoreColor(r.green_score)+'"><iconify-icon icon="mdi:leaf"></iconify-icon>'+r.green_score+'</div>';
+        if(!r.allergy.safe){
+          const hits=r.allergy.hits.join(', ');
+          extra+='<div class="alert bad"><iconify-icon icon="mdi:alert"></iconify-icon><span>มี <b>'+hits+'</b> — คุณแพ้'+(r.allergy.max_severity?(' ('+sevTH(r.allergy.max_severity)+')'):'')+'</span></div>';
+        } else if(r.recommendation==='recommend'){
+          extra+='<div class="alert good"><iconify-icon icon="mdi:leaf-circle"></iconify-icon><span>ปลอดภัยสำหรับคุณ · ตัวเลือกรักษ์โลก</span></div>';
+        } else {
+          extra+='<div class="alert warn"><iconify-icon icon="mdi:information-outline"></iconify-icon><span>ไม่มีสารก่อภูมิแพ้ของคุณ</span></div>';
+        }
+        const flags=(r.health_flags||[]).map(f=>'<span class="flag">'+(FLAG_LABEL[f]||f)+'</span>').join('');
+        if(flags) extra+='<div class="flags">'+flags+'</div>';
+      }
+      return '<div class="card '+cls+'">'+
+        '<div class="thumb-wrap">'+gscore+'<div class="thumb">'+m.emoji+'</div><div class="add">+</div></div>'+
+        '<div class="info"><div class="name">'+m.name+'</div>'+
+        '<div class="ings">'+m.ingredients.join(', ')+'</div>'+
+        '<div class="price">฿'+m.price+'</div>'+extra+'</div></div>';
+    }).join('');
+}
+
+async function getRecs(){
+  const c=getCfg();
+  if(!c.consent){ openConnect(); return; }
+  banner('');
+  try {
+    const res=await fetch(c.base+'/api/partner/v1/green-check',{
+      method:'POST',
+      headers:{ 'Content-Type':'application/json','Authorization':'Bearer '+c.key,'X-Consent-Token':c.consent,'ngrok-skip-browser-warning':'true' },
+      body: JSON.stringify({ items: MENU.map(m=>({ name:m.name, ingredients:m.ingredients, kcal:m.kcal, sodium_mg:m.sodium_mg, sugar_g:m.sugar_g, packaging:m.packaging, tags:m.tags })) }),
+    });
+    if(res.status===403){ setConn(false); renderMenu(null); banner('การเชื่อมต่อถูกยกเลิก — ไม่มีคำแนะนำส่วนตัว'); toast('การเชื่อมต่อถูกยกเลิก'); return; }
+    if(!res.ok){ const e=await res.json().catch(()=>({})); toast('เชื่อมต่อไม่สำเร็จ: '+(e.message||e.error||res.status)); return; }
+    const data=await res.json();
+    setConn(true, data.subject); renderMenu(data.results); toast('ปรับเมนูให้คุณแล้ว ✓');
+  } catch(err){ toast('เชื่อมต่อไม่สำเร็จ ลองใหม่อีกครั้ง'); console.error(err); }
+}
+
+// เปิดมาจากแอป InGreen แบบ redirect (…/mockfood?ct=<token>) → เชื่อมอัตโนมัติ ไม่ต้องกรอกรหัส
+(function initFromUrl(){
+  try {
+    const p = new URLSearchParams(location.search);
+    const ct = p.get('ct');
+    if (ct) {
+      const cur = getCfg();
+      setCfg({ base:(p.get('api')||cur.base).replace(/\/$/,''), key:p.get('key')||cur.key, consent:ct });
+      history.replaceState(null, '', location.pathname); // ลบ token ออกจาก URL bar เพื่อความเป็นส่วนตัว
+    }
+  } catch {}
+})();
+
+renderMenu(null);
+if(getCfg().consent) getRecs();   // เชื่อมอยู่แล้ว / มี token จาก URL → โหลดคำแนะนำเลย
+</script>
+</body>
+</html>
