@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>GrabFood</title>
+<title>Food Delivery</title>
 <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2/dist/iconify-icon.min.js"></script>
 <style>
   :root { --brand: #00B14F; --ingreen: #2D8048; }
@@ -12,46 +12,23 @@
   .app { width: 100%; max-width: 430px; background: #fff; border-radius: 28px; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,.18); position: relative; padding-bottom: 70px; }
   img { display: block; }
 
-  /* cover + floating controls */
+  /* shared cover */
   .cover { position: relative; height: 200px; background: #ddd; }
   .cover > img { width: 100%; height: 100%; object-fit: cover; }
   .topbar { position: absolute; top: 0; left: 0; right: 0; padding: 14px 14px 0; display: flex; align-items: center; gap: 10px; }
-  .cbtn { width: 40px; height: 40px; border-radius: 50%; background: rgba(0,0,0,.4); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; color: #fff; cursor: pointer; }
-  .delivery { margin-left: auto; background: rgba(0,0,0,.55); color: #fff; border-radius: 22px; padding: 9px 14px; display: flex; align-items: center; gap: 7px; font-size: 13.5px; font-weight: 700; cursor: pointer; }
+  .cbtn { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .cbtn.dark { background: rgba(0,0,0,.4); backdrop-filter: blur(4px); color: #fff; }
+  .cbtn.light { background: #fff; color: #222; box-shadow: 0 2px 8px rgba(0,0,0,.18); }
 
-  /* restaurant card */
-  .rest { background: #fff; margin: -42px 14px 0; border-radius: 18px; padding: 14px; box-shadow: 0 10px 30px rgba(0,0,0,.1); position: relative; display: flex; gap: 13px; }
-  .rest .rphoto { width: 92px; height: 92px; border-radius: 14px; object-fit: cover; flex-shrink: 0; background: #eee; }
-  .rest .rinfo { flex: 1; min-width: 0; }
-  .rest h1 { font-size: 21px; font-weight: 800; letter-spacing: -.3px; user-select: none; }
-  .rest .loc { font-size: 13px; color: #9a9a9a; margin-top: 2px; }
-  .rest .rate { display: flex; align-items: center; gap: 4px; margin-top: 7px; font-size: 14px; font-weight: 800; }
-  .rest .rate iconify-icon { color: #FFC400; }
-  .rest .rate .n2 { color: #9a9a9a; font-weight: 600; font-size: 12.5px; }
-  .rest .deliv { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 12.5px; color: #444; }
-  .rest .deliv .free { color: var(--brand); font-weight: 800; }
-  .rest .deliv s { color: #bbb; }
-  .rest .deliv iconify-icon { color: var(--brand); }
+  /* shared add button + health badges */
+  .add { background: var(--brand); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,.25); }
+  .hbadge { height: 22px; padding: 0 8px; border-radius: 11px; color: #fff; font-size: 10.5px; font-weight: 800; display: none; align-items: center; gap: 3px; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
+  .galert { font-size: 10.5px; margin-top: 5px; line-height: 1.35; display: flex; align-items: flex-start; gap: 4px; }
+  .galert.bad { color: #C62828; } .galert.good { color: #1f7a3a; }
+  .gflags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+  .gflag { font-size: 9.5px; background: #FFF3E0; color: #B26A00; padding: 2px 7px; border-radius: 6px; font-weight: 700; }
 
-  /* action pills */
-  .acts { display: flex; gap: 9px; overflow-x: auto; padding: 14px 14px 2px; scrollbar-width: none; }
-  .acts::-webkit-scrollbar { display: none; }
-  .pill { flex-shrink: 0; display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 700; color: #444; background: #fff; border: 1.5px solid #eee; padding: 9px 15px; border-radius: 24px; cursor: pointer; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
-  .pill.primary { color: #F06B1E; border-color: #F7C9A8; }
-  .pill iconify-icon { font-size: 17px; }
-
-  /* promo cards */
-  .promos { display: flex; gap: 10px; overflow-x: auto; padding: 14px 14px 4px; scrollbar-width: none; }
-  .promos::-webkit-scrollbar { display: none; }
-  .promo { flex-shrink: 0; min-width: 180px; background: #fff; border: 1px solid #f0f0f0; border-radius: 14px; padding: 11px 12px; display: flex; align-items: center; gap: 9px; box-shadow: 0 3px 10px rgba(0,0,0,.05); }
-  .promo .fire { width: 38px; height: 40px; border-radius: 9px; background: linear-gradient(160deg,#FF7A00,#E8203B); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 8px; font-weight: 800; flex-shrink: 0; gap: 1px; }
-  .promo .fire iconify-icon { font-size: 17px; }
-  .promo .pt1 { font-size: 14px; font-weight: 800; }
-  .promo .pt2 { font-size: 10.5px; color: #999; margin-top: 1px; }
-  .cd { display: flex; gap: 3px; margin-top: 4px; }
-  .cd span { background: #4A2600; color: #fff; font-size: 11px; font-weight: 800; padding: 2px 5px; border-radius: 5px; font-variant-numeric: tabular-nums; }
-
-  /* InGreen health strip */
+  /* shared InGreen strip */
   .ingreen { margin: 14px 14px 0; border-radius: 16px; padding: 13px; display: flex; align-items: center; gap: 11px; cursor: pointer; background: #F4FBEE; border: 1.5px solid #CDE9B6; }
   .ingreen.on { background: linear-gradient(120deg,#EAF7E0,#F4FBEE); border-color: #8DD06A; }
   .ingreen .ibadge { width: 40px; height: 40px; border-radius: 12px; background: var(--ingreen); display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; }
@@ -59,165 +36,130 @@
   .ingreen .it1 { font-size: 13.5px; font-weight: 800; color: #1B5E37; display: flex; align-items: center; gap: 5px; }
   .ingreen .it2 { font-size: 11px; color: #6a8a5a; margin-top: 2px; line-height: 1.4; }
   .ingreen .icta { font-size: 12.5px; font-weight: 800; color: #fff; background: var(--ingreen); padding: 8px 14px; border-radius: 11px; flex-shrink: 0; }
-
   .banner { margin: 12px 14px 0; background: #FCEBEB; color: #A32D2D; border-radius: 12px; padding: 11px 13px; font-size: 12px; display: none; align-items: center; gap: 8px; line-height: 1.4; }
   .banner.show { display: flex; }
-
-  /* section heads */
-  .shead { display: flex; align-items: center; padding: 20px 16px 10px; }
-  .shead h2 { font-size: 19px; font-weight: 800; flex: 1; letter-spacing: -.3px; }
-  .shead .arrow { width: 34px; height: 34px; border-radius: 50%; background: #EAF7EF; color: var(--brand); display: flex; align-items: center; justify-content: center; cursor: pointer; }
-
-  /* today's offers (horizontal) */
-  .offers { display: flex; gap: 12px; overflow-x: auto; padding: 0 14px 4px; scrollbar-width: none; }
-  .offers::-webkit-scrollbar { display: none; }
-  .ocard { flex-shrink: 0; width: 270px; background: #fff; border: 1px solid #f1f1f1; border-radius: 16px; padding: 11px; display: flex; gap: 12px; box-shadow: 0 4px 14px rgba(0,0,0,.05); position: relative; }
-  .ocard .othumb-wrap { position: relative; width: 96px; height: 96px; flex-shrink: 0; }
-  .ocard .othumb { width: 96px; height: 96px; border-radius: 13px; object-fit: cover; background: #eee; }
-  .ocard .oinfo { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-  .ocard .oname { font-size: 14.5px; font-weight: 700; line-height: 1.3; }
-  .ocard .oprice { margin-top: auto; display: flex; align-items: center; gap: 7px; font-size: 16px; font-weight: 800; }
-  .ocard .oprice s { color: #bbb; font-size: 13px; font-weight: 600; }
-  .ocard .oprice .tag { color: #F06B1E; font-size: 15px; }
-
-  /* for you (2-col grid) */
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 4px 14px 14px; }
-  .gcard { background: #fff; border-radius: 16px; overflow: hidden; }
-  .gthumb-wrap { position: relative; width: 100%; aspect-ratio: 1/1; background: #eee; }
-  .gthumb { width: 100%; height: 100%; object-fit: cover; }
-  .gthumb.emoji { display: flex; align-items: center; justify-content: center; font-size: 52px; }
-  .add { position: absolute; right: 8px; bottom: 8px; width: 34px; height: 34px; border-radius: 50%; background: var(--brand); color: #fff; font-size: 24px; font-weight: 600; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 8px rgba(0,0,0,.25); cursor: pointer; }
-  .seller { position: absolute; left: 0; top: 10px; background: var(--brand); color: #fff; font-size: 10px; font-weight: 800; padding: 3px 9px; border-radius: 0 8px 8px 0; }
-  .hbadge { position: absolute; right: 8px; top: 8px; height: 22px; padding: 0 8px; border-radius: 11px; color: #fff; font-size: 10.5px; font-weight: 800; display: none; align-items: center; gap: 3px; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
-  .gbody { padding: 9px 4px 4px; }
-  .gname { font-size: 14px; font-weight: 700; line-height: 1.3; }
-  .gprice { font-size: 15px; font-weight: 800; margin-top: 4px; }
-  .galert { font-size: 10.5px; margin-top: 5px; line-height: 1.35; display: flex; align-items: flex-start; gap: 4px; }
-  .galert.bad { color: #C62828; }
-  .galert.good { color: #1f7a3a; }
-  .gflags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
-  .gflag { font-size: 9.5px; background: #FFF3E0; color: #B26A00; padding: 2px 7px; border-radius: 6px; font-weight: 700; }
 
   .cartbar { position: absolute; left: 0; right: 0; bottom: 0; background: var(--brand); color: #fff; padding: 16px 18px; display: flex; align-items: center; justify-content: space-between; font-weight: 800; font-size: 14.5px; }
   .cartbar .n { background: rgba(255,255,255,.25); border-radius: 8px; padding: 3px 10px; font-size: 12px; }
 
-  /* modal */
+  /* ===== GrabFood ===== */
+  .g-rest { background: #fff; margin: -42px 14px 0; border-radius: 18px; padding: 14px; box-shadow: 0 10px 30px rgba(0,0,0,.1); position: relative; display: flex; gap: 13px; }
+  .g-rest .rphoto { width: 92px; height: 92px; border-radius: 14px; object-fit: cover; flex-shrink: 0; background: #eee; }
+  .g-rest .rinfo { flex: 1; min-width: 0; }
+  .g-rest h1 { font-size: 21px; font-weight: 800; letter-spacing: -.3px; user-select: none; }
+  .g-rest .loc { font-size: 13px; color: #9a9a9a; margin-top: 2px; }
+  .g-rest .rate { display: flex; align-items: center; gap: 4px; margin-top: 7px; font-size: 14px; font-weight: 800; }
+  .g-rest .rate iconify-icon { color: #FFC400; } .g-rest .rate .n2 { color: #9a9a9a; font-weight: 600; font-size: 12.5px; }
+  .g-rest .deliv { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 12.5px; color: #444; }
+  .g-rest .deliv .free { color: var(--brand); font-weight: 800; } .g-rest .deliv s { color: #bbb; } .g-rest .deliv iconify-icon { color: var(--brand); }
+  .g-acts { display: flex; gap: 9px; overflow-x: auto; padding: 14px 14px 2px; scrollbar-width: none; } .g-acts::-webkit-scrollbar { display: none; }
+  .g-pill { flex-shrink: 0; display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 700; color: #444; background: #fff; border: 1.5px solid #eee; padding: 9px 15px; border-radius: 24px; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
+  .g-pill.primary { color: #F06B1E; border-color: #F7C9A8; } .g-pill iconify-icon { font-size: 17px; }
+  .g-promos { display: flex; gap: 10px; overflow-x: auto; padding: 14px 14px 4px; scrollbar-width: none; } .g-promos::-webkit-scrollbar { display: none; }
+  .g-promo { flex-shrink: 0; min-width: 180px; background: #fff; border: 1px solid #f0f0f0; border-radius: 14px; padding: 11px 12px; display: flex; align-items: center; gap: 9px; box-shadow: 0 3px 10px rgba(0,0,0,.05); }
+  .g-fire { width: 38px; height: 40px; border-radius: 9px; background: linear-gradient(160deg,#FF7A00,#E8203B); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 8px; font-weight: 800; flex-shrink: 0; gap: 1px; } .g-fire iconify-icon { font-size: 17px; }
+  .g-pt1 { font-size: 14px; font-weight: 800; } .g-pt2 { font-size: 10.5px; color: #999; margin-top: 1px; }
+  .g-cd { display: flex; gap: 3px; margin-top: 4px; } .g-cd span { background: #4A2600; color: #fff; font-size: 11px; font-weight: 800; padding: 2px 5px; border-radius: 5px; font-variant-numeric: tabular-nums; }
+  .g-shead { display: flex; align-items: center; padding: 20px 16px 10px; } .g-shead h2 { font-size: 19px; font-weight: 800; flex: 1; letter-spacing: -.3px; }
+  .g-arrow { width: 34px; height: 34px; border-radius: 50%; background: #EAF7EF; color: var(--brand); display: flex; align-items: center; justify-content: center; }
+  .g-offers { display: flex; gap: 12px; overflow-x: auto; padding: 0 14px 4px; scrollbar-width: none; } .g-offers::-webkit-scrollbar { display: none; }
+  .g-ocard { flex-shrink: 0; width: 270px; background: #fff; border: 1px solid #f1f1f1; border-radius: 16px; padding: 11px; display: flex; gap: 12px; box-shadow: 0 4px 14px rgba(0,0,0,.05); position: relative; }
+  .g-otw { position: relative; width: 96px; height: 96px; flex-shrink: 0; } .g-othumb { width: 96px; height: 96px; border-radius: 13px; object-fit: cover; background: #eee; } .g-othumb.emoji { display:flex;align-items:center;justify-content:center;font-size:42px; }
+  .g-oinfo { flex: 1; min-width: 0; display: flex; flex-direction: column; } .g-oname { font-size: 14.5px; font-weight: 700; line-height: 1.3; }
+  .g-oprice { margin-top: auto; display: flex; align-items: center; gap: 7px; font-size: 16px; font-weight: 800; } .g-oprice s { color: #bbb; font-size: 13px; font-weight: 600; } .g-oprice .tag { color: #F06B1E; font-size: 15px; }
+  .g-otw .hbadge { position:absolute; right:6px; top:6px; }
+  .g-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 4px 14px 14px; }
+  .g-card { background: #fff; border-radius: 16px; overflow: hidden; }
+  .g-tw { position: relative; width: 100%; aspect-ratio: 1/1; background: #eee; } .g-thumb { width: 100%; height: 100%; object-fit: cover; } .g-thumb.emoji { display:flex;align-items:center;justify-content:center;font-size:52px; }
+  .g-tw .add { position: absolute; right: 8px; bottom: 8px; width: 34px; height: 34px; border-radius: 50%; font-size: 24px; font-weight: 600; }
+  .g-tw .hbadge { position: absolute; right: 8px; top: 8px; }
+  .g-seller { position: absolute; left: 0; top: 10px; background: var(--brand); color: #fff; font-size: 10px; font-weight: 800; padding: 3px 9px; border-radius: 0 8px 8px 0; }
+  .g-body { padding: 9px 4px 4px; } .g-name { font-size: 14px; font-weight: 700; line-height: 1.3; } .g-price { font-size: 15px; font-weight: 800; margin-top: 4px; }
+
+  /* ===== LINE MAN ===== */
+  .l-rest { padding: 16px 16px 0; }
+  .l-namerow { display: flex; align-items: flex-start; gap: 10px; }
+  .l-rest h1 { font-size: 22px; font-weight: 800; line-height: 1.25; letter-spacing: -.3px; flex: 1; user-select: none; }
+  .l-nameic { display: flex; align-items: center; gap: 10px; color: #888; padding-top: 4px; }
+  .l-meta { display: flex; align-items: center; gap: 9px; margin-top: 13px; flex-wrap: wrap; font-size: 13px; color: #444; }
+  .l-rate { display: inline-flex; align-items: center; gap: 5px; border: 1px solid #eee; border-radius: 10px; padding: 6px 10px; font-weight: 800; box-shadow: 0 1px 4px rgba(0,0,0,.05); }
+  .l-rate iconify-icon { color: #FFC400; } .l-rate .c { color: #999; font-weight: 600; }
+  .l-vip { display: inline-flex; align-items: center; gap: 5px; font-weight: 700; }
+  .l-vipbadge { background: linear-gradient(120deg,#7B61FF,#3D7BFF); color: #fff; font-size: 9px; font-weight: 900; padding: 2px 5px; border-radius: 4px; letter-spacing: .3px; }
+  .l-dist { color: #555; } .l-dist s { color: #bbb; }
+  .l-acts { display: flex; gap: 10px; overflow-x: auto; padding: 16px 16px 4px; scrollbar-width: none; } .l-acts::-webkit-scrollbar { display:none; }
+  .l-act { flex-shrink: 0; display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #333; background: #fff; border: 1px solid #ededed; padding: 11px 16px; border-radius: 14px; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.05); }
+  .l-act .gi { color: var(--brand); font-size: 20px; }
+  .l-vouchers { display: flex; gap: 10px; overflow-x: auto; padding: 14px 16px 4px; scrollbar-width: none; } .l-vouchers::-webkit-scrollbar { display:none; }
+  .l-vch { flex-shrink: 0; min-width: 250px; display: flex; align-items: stretch; border-radius: 12px; overflow: hidden; border: 1px solid #eee; }
+  .l-vch.applied { border: 1.5px dashed #2BC36B; background: #F1FBF4; }
+  .l-vch .vl { flex: 1; display: flex; align-items: center; gap: 9px; padding: 11px 12px; }
+  .l-vcoin { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; }
+  .l-vt1 { font-size: 13.5px; font-weight: 800; } .l-vt2 { font-size: 11px; color: #8aa; margin-top: 1px; color: #2BC36B; font-weight: 700; }
+  .l-vch .vr { display: flex; align-items: center; padding: 0 14px; font-size: 13px; font-weight: 800; color: var(--brand); border-left: 1px dashed #cfe9d8; }
+  .l-gov { margin: 14px 16px 0; background: #19438F; color: #fff; border-radius: 14px; padding: 13px 14px; display: flex; align-items: center; gap: 11px; }
+  .l-gov .gl { width: 40px; height: 40px; border-radius: 8px; background: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 9px; font-weight: 900; color: #19438F; text-align: center; line-height: 1.05; }
+  .l-gov .gt { flex: 1; min-width: 0; } .l-gov .gt1 { font-size: 13px; font-weight: 800; } .l-gov .gt2 { font-size: 11px; opacity: .9; margin-top: 2px; line-height: 1.35; }
+  .l-gov .gbtn { background: #fff; color: #19438F; font-size: 12.5px; font-weight: 800; padding: 8px 13px; border-radius: 10px; flex-shrink: 0; }
+  .l-tabs { display: flex; align-items: center; gap: 18px; padding: 16px 16px 0; border-bottom: 1px solid #f0f0f0; overflow-x: auto; scrollbar-width: none; position: sticky; top: 0; background: #fff; z-index: 5; } .l-tabs::-webkit-scrollbar { display:none; }
+  .l-tabic { color: #555; font-size: 22px; flex-shrink: 0; }
+  .l-tab { flex-shrink: 0; font-size: 15px; font-weight: 700; color: #999; padding: 4px 0 12px; border-bottom: 3px solid transparent; white-space: nowrap; cursor: pointer; }
+  .l-tab.active { color: var(--brand); border-bottom-color: var(--brand); }
+  .l-sec { font-size: 19px; font-weight: 800; padding: 18px 16px 8px; scroll-margin-top: 56px; }
+  .l-list { padding: 0 16px; }
+  .l-row { display: flex; gap: 13px; padding: 14px 0; border-bottom: 1px solid #f3f3f3; }
+  .l-rinfo { flex: 1; min-width: 0; }
+  .l-rname { font-size: 15px; font-weight: 700; line-height: 1.3; }
+  .l-rdesc { font-size: 12px; color: #9a9a9a; margin-top: 3px; line-height: 1.4; }
+  .l-rprice { font-size: 15px; font-weight: 800; margin-top: 7px; }
+  .l-rtw { position: relative; width: 96px; height: 96px; flex-shrink: 0; }
+  .l-rthumb { width: 96px; height: 96px; border-radius: 13px; object-fit: cover; background: #eee; } .l-rthumb.emoji { display:flex;align-items:center;justify-content:center;font-size:44px; }
+  .l-rtw .add { position: absolute; right: -6px; bottom: -6px; width: 32px; height: 32px; border-radius: 50%; font-size: 23px; font-weight: 600; }
+  .l-rtw .hbadge { position: absolute; left: -4px; top: -6px; }
+  .l-vipbar { position: absolute; left: 0; right: 0; bottom: 0; background: linear-gradient(90deg,#EEF3FF,#F3EEFF); padding: 15px 18px; display: flex; align-items: center; gap: 10px; }
+  .l-vipbar .vb { background: linear-gradient(120deg,#7B61FF,#3D7BFF); color: #fff; font-size: 10px; font-weight: 900; padding: 3px 7px; border-radius: 5px; }
+  .l-vipbar .vt { flex: 1; font-size: 13.5px; font-weight: 700; color: #333; } .l-vipbar iconify-icon { color: #888; }
+
+  /* modal + toast (shared) */
   .overlay { position: fixed; inset: 0; background: rgba(20,30,15,.5); display: none; align-items: flex-end; justify-content: center; z-index: 40; }
   .overlay.show { display: flex; }
   .sheet { background: #fff; width: 100%; max-width: 430px; border-radius: 24px 24px 0 0; padding: 20px 20px 26px; }
   .sheet .grip { width: 42px; height: 4px; border-radius: 3px; background: #ddd; margin: 0 auto 16px; }
   .sheet .mhead { display: flex; align-items: center; gap: 11px; margin-bottom: 6px; }
   .sheet .mlogo { width: 46px; height: 46px; border-radius: 12px; background: var(--ingreen); display: flex; align-items: center; justify-content: center; color: #fff; }
-  .sheet h2 { font-size: 17px; font-weight: 800; }
-  .sheet .msub { font-size: 12px; color: #888; margin-top: 1px; }
+  .sheet h2 { font-size: 17px; font-weight: 800; } .sheet .msub { font-size: 12px; color: #888; margin-top: 1px; }
   .sheet p.d { font-size: 13px; color: #555; line-height: 1.55; margin: 14px 0 6px; }
   .sheet label { display: block; font-size: 11px; color: #888; margin: 12px 0 4px; font-weight: 700; }
   .sheet input { width: 100%; padding: 13px 14px; border-radius: 13px; border: 1.5px solid #E3E3E3; background: #FAFAFA; font-size: 14px; font-family: inherit; }
   .sheet input:focus { outline: none; border-color: var(--ingreen); background: #fff; }
-  .hint { font-size: 11.5px; color: #8a8a8a; margin-top: 8px; line-height: 1.5; display: flex; gap: 6px; align-items: flex-start; }
-  .hint b { color: #00813a; }
-  .mbtns { display: flex; gap: 10px; margin-top: 20px; }
-  .mbtns button { padding: 14px; border: none; border-radius: 14px; font-weight: 800; font-size: 14px; cursor: pointer; font-family: inherit; }
-  .b-cancel { background: #fff; color: #888; border: 1.5px solid #ddd !important; flex: 1; }
-  .b-go { background: var(--ingreen); color: #fff; flex: 2; }
-  .adv-fields { display: none; }
-  .adv-fields.show { display: block; }
-
+  .hint { font-size: 11.5px; color: #8a8a8a; margin-top: 8px; line-height: 1.5; display: flex; gap: 6px; align-items: flex-start; } .hint b { color: #00813a; }
+  .mbtns { display: flex; gap: 10px; margin-top: 20px; } .mbtns button { padding: 14px; border: none; border-radius: 14px; font-weight: 800; font-size: 14px; cursor: pointer; font-family: inherit; }
+  .b-cancel { background: #fff; color: #888; border: 1.5px solid #ddd !important; flex: 1; } .b-go { background: var(--ingreen); color: #fff; flex: 2; }
+  .adv-fields { display: none; } .adv-fields.show { display: block; }
   .toast { position: fixed; top: 24px; left: 50%; transform: translateX(-50%); background: #1b1b1b; color: #fff; padding: 11px 20px; border-radius: 24px; font-size: 13px; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 99; max-width: 90%; text-align: center; }
   .toast.show { opacity: 1; }
 </style>
 </head>
 <body>
-<div class="app">
-  <div class="cover">
-    <img id="cover-img" referrerpolicy="no-referrer" onerror="this.style.display='none'" />
-    <div class="topbar">
-      <div class="cbtn"><iconify-icon icon="mdi:arrow-left" width="22"></iconify-icon></div>
-      <div class="cbtn" style="margin-left:auto"><iconify-icon icon="mdi:heart-outline" width="20"></iconify-icon></div>
-      <div class="delivery"><iconify-icon icon="mdi:motorbike" width="18"></iconify-icon> จัดส่ง <iconify-icon icon="mdi:chevron-down" width="16"></iconify-icon></div>
-    </div>
-  </div>
-
-  <div class="rest">
-    <img class="rphoto" id="rphoto" referrerpolicy="no-referrer" />
-    <div class="rinfo">
-      <h1 id="rest-title">ครัวสุขภาพดี</h1>
-      <div class="loc">- สุขุมวิท 31</div>
-      <div class="rate"><iconify-icon icon="mdi:star"></iconify-icon> 4.8 <span class="n2">(2.1k+)</span></div>
-      <div class="deliv"><iconify-icon icon="mdi:motorbike"></iconify-icon> <span class="free">ฟรี</span> <s>฿15</s> · 20-30 นาที</div>
-    </div>
-  </div>
-
-  <div class="acts">
-    <div class="pill primary"><iconify-icon icon="mdi:account-multiple-plus-outline"></iconify-icon> คำสั่งซื้อกลุ่ม</div>
-    <div class="pill"><iconify-icon icon="mdi:calendar-clock-outline"></iconify-icon> สั่งล่วงหน้า</div>
-    <div class="pill"><iconify-icon icon="mdi:share-variant-outline"></iconify-icon> แชร์</div>
-    <div class="pill"><iconify-icon icon="mdi:translate"></iconify-icon> ภาษาของเมนู</div>
-  </div>
-
-  <div class="promos">
-    <div class="promo">
-      <div class="fire"><iconify-icon icon="mdi:fire"></iconify-icon>ลดแรง</div>
-      <div><div class="pt1">ลด 40%</div><div class="cd" id="cd"><span>00</span><span>14</span><span>54</span></div></div>
-    </div>
-    <div class="promo">
-      <div class="fire"><iconify-icon icon="mdi:fire"></iconify-icon>ลดแรง</div>
-      <div><div class="pt1">ลด ฿50</div><div class="pt2">ขั้นต่ำ ฿200</div></div>
-    </div>
-    <div class="promo">
-      <div class="fire"><iconify-icon icon="mdi:sale"></iconify-icon>ดีล</div>
-      <div><div class="pt1">ลด 30%</div><div class="pt2">เมนูเพื่อสุขภาพ</div></div>
-    </div>
-  </div>
-
-  <div class="ingreen" id="conn" onclick="onConnClick()">
-    <div class="ibadge"><iconify-icon icon="mdi:heart-pulse" width="22"></iconify-icon></div>
-    <div class="itxt">
-      <div class="it1" id="conn-t1"><iconify-icon icon="mdi:link-variant"></iconify-icon> เชื่อมบัญชี InGreen</div>
-      <div class="it2" id="conn-t2">เตือนเมนูที่คุณแพ้ และแนะนำเมนูที่ดีต่อสุขภาพ เฉพาะคุณ</div>
-    </div>
-    <div class="icta" id="conn-cta">เชื่อม</div>
-  </div>
-
-  <div class="banner" id="banner"><iconify-icon icon="mdi:lock-alert"></iconify-icon><span id="banner-text"></span></div>
-
-  <div class="shead"><h2>ข้อเสนอวันนี้</h2><div class="arrow"><iconify-icon icon="mdi:arrow-right" width="18"></iconify-icon></div></div>
-  <div class="offers" id="offers"></div>
-
-  <div class="shead"><h2 id="foryou-head">สำหรับคุณ</h2></div>
-  <div class="grid" id="grid"></div>
-
-  <div class="cartbar">
-    <span><iconify-icon icon="mdi:cart" style="vertical-align:-2px"></iconify-icon> ตะกร้า <span class="n" id="cart-n">0</span></span>
-    <span id="cart-total">฿0</span>
-  </div>
-</div>
+<div class="app"><div id="root"></div></div>
 
 <div class="overlay" id="connect-modal">
   <div class="sheet">
     <div class="grip"></div>
-    <div class="mhead">
-      <div class="mlogo"><iconify-icon icon="mdi:heart-pulse" width="26"></iconify-icon></div>
-      <div><h2>เชื่อมต่อกับ InGreen</h2><div class="msub">เพื่อรับคำแนะนำอาหารที่เหมาะกับสุขภาพคุณ</div></div>
-    </div>
+    <div class="mhead"><div class="mlogo"><iconify-icon icon="mdi:heart-pulse" width="26"></iconify-icon></div>
+      <div><h2>เชื่อมต่อกับ InGreen</h2><div class="msub">เพื่อรับคำแนะนำอาหารที่เหมาะกับสุขภาพคุณ</div></div></div>
     <p class="d">ใส่รหัสเชื่อมต่อจากแอป InGreen ของคุณ แล้วเราจะช่วยเตือนเมนูที่คุณแพ้ และแนะนำเมนูที่ดีต่อสุขภาพให้โดยอัตโนมัติ</p>
     <label>รหัสเชื่อมต่อ</label>
     <input id="in-consent" placeholder="วางรหัสที่นี่" autocomplete="off" />
     <div class="hint"><iconify-icon icon="mdi:information-outline" style="margin-top:1px"></iconify-icon>
       <span>วิธีรับรหัส: เปิดแอป <b>InGreen</b> → ตั้งค่า → การเชื่อมต่อภายนอก → เชื่อมแอปนี้ → คัดลอกรหัส</span></div>
     <div class="adv-fields" id="adv">
-      <label>API base URL (สำหรับนักพัฒนา)</label>
-      <input id="in-base" placeholder="https://thesis-backend-q3qm.onrender.com" />
-      <label>API key (partner)</label>
-      <input id="in-key" />
+      <label>API base URL (สำหรับนักพัฒนา)</label><input id="in-base" placeholder="https://thesis-backend-q3qm.onrender.com" />
+      <label>API key (partner)</label><input id="in-key" />
     </div>
-    <div class="mbtns">
-      <button class="b-cancel" onclick="closeConnect()">ยกเลิก</button>
-      <button class="b-go" onclick="doConnect()">เชื่อมต่อ</button>
-    </div>
+    <div class="mbtns"><button class="b-cancel" onclick="closeConnect()">ยกเลิก</button><button class="b-go" onclick="doConnect()">เชื่อมต่อ</button></div>
   </div>
 </div>
-
 <div class="toast" id="toast"></div>
 
 <script>
@@ -238,135 +180,167 @@ const MENU = [
 const FLAG_LABEL = { high_sodium:'โซเดียมสูง', watch_sodium:'ระวังโซเดียม', high_sugar:'น้ำตาลสูง', high_calorie:'แคลอรี่สูง', diabetes_caution:'ระวังเบาหวาน' };
 const DEFAULTS = { base:'https://thesis-backend-q3qm.onrender.com', key:'pk_live_grabfood_demo_001', consent:'', app:'', color:'' };
 const IMG = {
-  1:  'https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Phat_Thai_kung_Chang_Khien_street_stall.jpg/330px-Phat_Thai_kung_Chang_Khien_street_stall.jpg',
-  2:  'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Basil_fried_crispy_pork_with_rice_-_Chiang_Mai_-_2017-07-11_%28002%29.jpg/330px-Basil_fried_crispy_pork_with_rice_-_Chiang_Mai_-_2017-07-11_%28002%29.jpg',
-  3:  'https://www.jmthaifood.com/wp-content/uploads/2020/01/%E0%B8%95%E0%B9%89%E0%B8%A1%E0%B8%A2%E0%B8%B3%E0%B8%81%E0%B8%B8%E0%B9%89%E0%B8%87-1.jpg',
-  4:  'https://static.thairath.co.th/media/dFQROr7oWzulq5Fa6rpOetuLxWtDW4pGVxTIT2bhWuo8KUmcxGVIisEysxd9YsSVQ0b.jpg',
-  5:  'https://s359.kapook.com/pagebuilder/bafb1ee2-be6b-4293-bf87-eddad7f11fc1.jpg',
-  6:  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5zg4LNbM0EJmNgb8E0ossx90ihOJQnqm2KrPFCXkf6uLgGYNY9ebKZPYq&s=10',
-  7:  'https://img.kapook.com/u/2021/wanwanat/1178196637.jpg',
-  8:  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQRaQL6NEHidAXwIu3dClZNWI_8eLtPXKsSvKoTH_v2y0aiA0bPnJMq2_k&s=10',
-  9:  'https://f.ptcdn.info/095/082/000/s32lbzestik7H8VgRgi3-o.jpg',
-  10: 'https://image.makewebcdn.com/makeweb/m_1920x0/9hMmtOPMp/DefaultData/%E0%B8%8A%E0%B8%B2%E0%B9%84%E0%B8%97%E0%B8%A2_%E0%B8%A3%E0%B8%AA%E0%B9%82%E0%B8%9A%E0%B8%A3%E0%B8%B2%E0%B8%932.jpg',
-  11: 'https://image.makewebcdn.com/makeweb/m_1920x0/k7YSKTBTq/Recipe/%E0%B8%A1%E0%B8%B0%E0%B8%99%E0%B8%B2%E0%B8%A7%E0%B9%82%E0%B8%8B%E0%B8%94%E0%B8%B2.jpg',
-  12: 'https://www.ofm.co.th/blog/wp-content/uploads/2025/02/%E0%B8%82%E0%B9%89%E0%B8%B2%E0%B8%A7%E0%B9%80%E0%B8%AB%E0%B8%99%E0%B8%B5%E0%B8%A2%E0%B8%A7%E0%B8%A1%E0%B8%B0%E0%B8%A1%E0%B9%88%E0%B8%A7%E0%B8%87.png',
+  1:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Phat_Thai_kung_Chang_Khien_street_stall.jpg/330px-Phat_Thai_kung_Chang_Khien_street_stall.jpg',
+  2:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Basil_fried_crispy_pork_with_rice_-_Chiang_Mai_-_2017-07-11_%28002%29.jpg/330px-Basil_fried_crispy_pork_with_rice_-_Chiang_Mai_-_2017-07-11_%28002%29.jpg',
+  3:'https://www.jmthaifood.com/wp-content/uploads/2020/01/%E0%B8%95%E0%B9%89%E0%B8%A1%E0%B8%A2%E0%B8%B3%E0%B8%81%E0%B8%B8%E0%B9%89%E0%B8%87-1.jpg',
+  4:'https://static.thairath.co.th/media/dFQROr7oWzulq5Fa6rpOetuLxWtDW4pGVxTIT2bhWuo8KUmcxGVIisEysxd9YsSVQ0b.jpg',
+  5:'https://s359.kapook.com/pagebuilder/bafb1ee2-be6b-4293-bf87-eddad7f11fc1.jpg',
+  6:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5zg4LNbM0EJmNgb8E0ossx90ihOJQnqm2KrPFCXkf6uLgGYNY9ebKZPYq&s=10',
+  7:'https://img.kapook.com/u/2021/wanwanat/1178196637.jpg',
+  8:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQRaQL6NEHidAXwIu3dClZNWI_8eLtPXKsSvKoTH_v2y0aiA0bPnJMq2_k&s=10',
+  9:'https://f.ptcdn.info/095/082/000/s32lbzestik7H8VgRgi3-o.jpg',
+  10:'https://image.makewebcdn.com/makeweb/m_1920x0/9hMmtOPMp/DefaultData/%E0%B8%8A%E0%B8%B2%E0%B9%84%E0%B8%97%E0%B8%A2_%E0%B8%A3%E0%B8%AA%E0%B9%82%E0%B8%9A%E0%B8%A3%E0%B8%B2%E0%B8%932.jpg',
+  11:'https://image.makewebcdn.com/makeweb/m_1920x0/k7YSKTBTq/Recipe/%E0%B8%A1%E0%B8%B0%E0%B8%99%E0%B8%B2%E0%B8%A7%E0%B9%82%E0%B8%8B%E0%B8%94%E0%B8%B2.jpg',
+  12:'https://www.ofm.co.th/blog/wp-content/uploads/2025/02/%E0%B8%82%E0%B9%89%E0%B8%B2%E0%B8%A7%E0%B9%80%E0%B8%AB%E0%B8%99%E0%B8%B5%E0%B8%A2%E0%B8%A7%E0%B8%A1%E0%B8%B0%E0%B8%A1%E0%B9%88%E0%B8%A7%E0%B8%87.png',
 };
 
-let HEALTH = {}, cart = 0, cartTotal = 0;
+let HEALTH = {}, cart = 0, cartTotal = 0, BRAND = 'grab';
 const $=(id)=>document.getElementById(id);
 const imgFor=(m)=>IMG[m.id]||('https://loremflickr.com/300/300/'+encodeURIComponent(m.name)+'?lock='+m.id);
 function getCfg(){ try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem('mockfood_cfg')||'{}') }; } catch { return {...DEFAULTS}; } }
 function setCfg(c){ localStorage.setItem('mockfood_cfg', JSON.stringify(c)); }
 function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(window._tt); window._tt=setTimeout(()=>t.classList.remove('show'),1900); }
+function sevTH(s){ return ({mild:'เล็กน้อย',medium:'ปานกลาง',severe:'รุนแรง'})[s]||s; }
+function addToCart(m){ cart++; cartTotal+=m.price; const n=$('cart-n'),t=$('cart-total'); if(n)n.textContent=cart; if(t)t.textContent='฿'+cartTotal; toast('เพิ่ม “'+m.name+'” ลงตะกร้า'); }
+window.ADD=(id)=>{ const m=MENU.find(x=>x.id===id); if(m) addToCart(m); };
+window.imgFallback=(el,emoji)=>{ el.outerHTML='<div class="'+el.className+' emoji">'+emoji+'</div>'; };
+function thumbImg(m,cls){ return '<img class="'+cls+'" src="'+imgFor(m)+'" referrerpolicy="no-referrer" loading="lazy" onerror="imgFallback(this,\''+m.emoji+'\')" />'; }
+function healthBadge(r){ if(!r) return '';
+  if(!r.safe) return '<div class="hbadge" style="display:flex;background:#E23744"><iconify-icon icon="mdi:close-circle"></iconify-icon>แพ้</div>';
+  if((r.health_flags||[]).length>0) return '<div class="hbadge" style="display:flex;background:#E89938"><iconify-icon icon="mdi:alert"></iconify-icon>ระวัง</div>';
+  return '<div class="hbadge" style="display:flex;background:#11A85A"><iconify-icon icon="mdi:check"></iconify-icon>เหมาะ</div>'; }
+function healthLine(r){ if(!r) return '';
+  if(!r.safe) return '<div class="galert bad"><iconify-icon icon="mdi:alert"></iconify-icon><span>มี '+r.hits.join(', ')+' — คุณแพ้'+(r.max_severity?(' ('+sevTH(r.max_severity)+')'):'')+'</span></div>';
+  if((r.health_flags||[]).length>0) return '<div class="gflags">'+r.health_flags.map(f=>'<span class="gflag">'+(FLAG_LABEL[f]||f)+'</span>').join('')+'</div>';
+  return '<div class="galert good"><iconify-icon icon="mdi:heart-check"></iconify-icon><span>เหมาะกับสุขภาพคุณ</span></div>'; }
 
-function applyBrand(){
-  const c=getCfg();
-  if(c.color && /^[0-9a-fA-F]{3,8}$/.test(c.color)) document.documentElement.style.setProperty('--brand','#'+c.color);
-  if(c.app){ document.title=c.app; }
-  $('cover-img').src = imgFor(MENU[1]);   // กะเพรา เป็นปกร้าน
-  $('rphoto').src    = imgFor(MENU[3]);   // ข้าวมันไก่ เป็นรูปร้าน
-}
-
+/* ── connect ── */
 function onConnClick(){ getCfg().consent ? getRecs() : openConnect(); }
 function openConnect(){ const c=getCfg(); $('in-consent').value=c.consent||''; $('in-base').value=c.base; $('in-key').value=c.key; $('connect-modal').classList.add('show'); }
 function closeConnect(){ $('connect-modal').classList.remove('show'); }
-function doConnect(){
-  const consent=$('in-consent').value.trim();
-  if(!consent){ toast('กรุณาใส่รหัสเชื่อมต่อ'); return; }
-  const cur=getCfg();
-  setCfg({ ...cur, base:($('in-base').value.trim()||DEFAULTS.base).replace(/\/$/,''), key:$('in-key').value.trim()||DEFAULTS.key, consent });
-  closeConnect(); toast('กำลังเชื่อมต่อ…'); getRecs();
-}
-function bindHold(){ const rt=$('rest-title'); let h; const s=()=>{ h=setTimeout(()=>{ openConnect(); $('adv').classList.add('show'); toast('โหมดนักพัฒนา'); },700); }; const e=()=>clearTimeout(h);
+function doConnect(){ const consent=$('in-consent').value.trim(); if(!consent){ toast('กรุณาใส่รหัสเชื่อมต่อ'); return; }
+  const cur=getCfg(); setCfg({ ...cur, base:($('in-base').value.trim()||DEFAULTS.base).replace(/\/$/,''), key:$('in-key').value.trim()||DEFAULTS.key, consent });
+  closeConnect(); toast('กำลังเชื่อมต่อ…'); getRecs(); }
+function bindHold(){ const rt=$('rest-title'); if(!rt) return; let h; const s=()=>{ h=setTimeout(()=>{ openConnect(); $('adv').classList.add('show'); toast('โหมดนักพัฒนา'); },700); }; const e=()=>clearTimeout(h);
   rt.addEventListener('mousedown',s); rt.addEventListener('touchstart',s,{passive:true}); rt.addEventListener('mouseup',e); rt.addEventListener('mouseleave',e); rt.addEventListener('touchend',e); }
+function setConn(connected){ const el=$('conn'); if(!el) return;
+  if(connected){ el.classList.add('on'); $('conn-t1').innerHTML='<iconify-icon icon="mdi:check-decagram" style="color:#2D8048"></iconify-icon> เชื่อม InGreen แล้ว'; $('conn-t2').textContent='เมนูถูกปรับให้เหมาะกับสุขภาพคุณแล้ว'; $('conn-cta').textContent='รีเฟรช'; }
+  else { el.classList.remove('on'); $('conn-t1').innerHTML='<iconify-icon icon="mdi:link-variant"></iconify-icon> เชื่อมบัญชี InGreen'; $('conn-t2').textContent='เตือนเมนูที่คุณแพ้ และแนะนำเมนูที่ดีต่อสุขภาพ เฉพาะคุณ'; $('conn-cta').textContent='เชื่อม'; } }
+function banner(msg){ const b=$('banner'); if(!b) return; if(!msg){ b.classList.remove('show'); return; } $('banner-text').textContent=msg; b.classList.add('show'); }
 
-function setConn(connected){
-  const el=$('conn');
-  if(connected){ el.classList.add('on');
-    $('conn-t1').innerHTML='<iconify-icon icon="mdi:check-decagram" style="color:#2D8048"></iconify-icon> เชื่อม InGreen แล้ว';
-    $('conn-t2').textContent='เมนูถูกปรับให้เหมาะกับสุขภาพคุณแล้ว'; $('conn-cta').textContent='รีเฟรช';
-    $('foryou-head').innerHTML='สำหรับคุณ';
-  } else { el.classList.remove('on');
-    $('conn-t1').innerHTML='<iconify-icon icon="mdi:link-variant"></iconify-icon> เชื่อมบัญชี InGreen';
-    $('conn-t2').textContent='เตือนเมนูที่คุณแพ้ และแนะนำเมนูที่ดีต่อสุขภาพ เฉพาะคุณ'; $('conn-cta').textContent='เชื่อม';
-  }
-}
-function banner(msg){ const b=$('banner'); if(!msg){ b.classList.remove('show'); return; } $('banner-text').textContent=msg; b.classList.add('show'); }
-function sevTH(s){ return ({mild:'เล็กน้อย',medium:'ปานกลาง',severe:'รุนแรง'})[s]||s; }
-function addToCart(m){ cart++; cartTotal+=m.price; $('cart-n').textContent=cart; $('cart-total').textContent='฿'+cartTotal; toast('เพิ่ม “'+m.name+'” ลงตะกร้า'); }
-window.ADD=(id)=>{ const m=MENU.find(x=>x.id===id); if(m) addToCart(m); };
-window.imgFallback=(el,emoji)=>{ el.outerHTML='<div class="'+el.className+' emoji">'+emoji+'</div>'; };
+/* ── shared InGreen strip HTML ── */
+function ingreenHTML(){ return '<div class="ingreen" id="conn" onclick="onConnClick()"><div class="ibadge"><iconify-icon icon="mdi:heart-pulse" width="22"></iconify-icon></div>'+
+  '<div class="itxt"><div class="it1" id="conn-t1"><iconify-icon icon="mdi:link-variant"></iconify-icon> เชื่อมบัญชี InGreen</div>'+
+  '<div class="it2" id="conn-t2">เตือนเมนูที่คุณแพ้ และแนะนำเมนูที่ดีต่อสุขภาพ เฉพาะคุณ</div></div><div class="icta" id="conn-cta">เชื่อม</div></div>'+
+  '<div class="banner" id="banner"><iconify-icon icon="mdi:lock-alert"></iconify-icon><span id="banner-text"></span></div>'; }
 
-function thumbImg(m, cls){
-  return '<img class="'+cls+'" src="'+imgFor(m)+'" referrerpolicy="no-referrer" loading="lazy" onerror="imgFallback(this,\''+m.emoji+'\')" />';
+/* ===== GrabFood layout ===== */
+function layoutGrab(){
+  return '<div class="cover"><img src="'+imgFor(MENU[1])+'" referrerpolicy="no-referrer" onerror="this.style.display=\'none\'" />'+
+    '<div class="topbar"><div class="cbtn dark"><iconify-icon icon="mdi:arrow-left" width="22"></iconify-icon></div>'+
+    '<div class="cbtn dark" style="margin-left:auto"><iconify-icon icon="mdi:heart-outline" width="20"></iconify-icon></div>'+
+    '<div class="cbtn dark" style="width:auto;padding:0 13px;gap:7px;border-radius:22px;font-size:13.5px;font-weight:700"><iconify-icon icon="mdi:motorbike" width="18"></iconify-icon> จัดส่ง <iconify-icon icon="mdi:chevron-down" width="16"></iconify-icon></div></div></div>'+
+    '<div class="g-rest"><img class="rphoto" src="'+imgFor(MENU[3])+'" referrerpolicy="no-referrer" /><div class="rinfo">'+
+      '<h1 id="rest-title">ครัวสุขภาพดี</h1><div class="loc">- สุขุมวิท 31</div>'+
+      '<div class="rate"><iconify-icon icon="mdi:star"></iconify-icon> 4.8 <span class="n2">(2.1k+)</span></div>'+
+      '<div class="deliv"><iconify-icon icon="mdi:motorbike"></iconify-icon> <span class="free">ฟรี</span> <s>฿15</s> · 20-30 นาที</div></div></div>'+
+    '<div class="g-acts"><div class="g-pill primary"><iconify-icon icon="mdi:account-multiple-plus-outline"></iconify-icon> คำสั่งซื้อกลุ่ม</div>'+
+      '<div class="g-pill"><iconify-icon icon="mdi:calendar-clock-outline"></iconify-icon> สั่งล่วงหน้า</div>'+
+      '<div class="g-pill"><iconify-icon icon="mdi:share-variant-outline"></iconify-icon> แชร์</div>'+
+      '<div class="g-pill"><iconify-icon icon="mdi:translate"></iconify-icon> ภาษาของเมนู</div></div>'+
+    '<div class="g-promos"><div class="g-promo"><div class="g-fire"><iconify-icon icon="mdi:fire"></iconify-icon>ลดแรง</div>'+
+      '<div><div class="g-pt1">ลด 40%</div><div class="g-cd" id="cd"><span>00</span><span>14</span><span>54</span></div></div></div>'+
+      '<div class="g-promo"><div class="g-fire"><iconify-icon icon="mdi:fire"></iconify-icon>ลดแรง</div><div><div class="g-pt1">ลด ฿50</div><div class="g-pt2">ขั้นต่ำ ฿200</div></div></div>'+
+      '<div class="g-promo"><div class="g-fire"><iconify-icon icon="mdi:sale"></iconify-icon>ดีล</div><div><div class="g-pt1">ลด 30%</div><div class="g-pt2">เมนูเพื่อสุขภาพ</div></div></div></div>'+
+    ingreenHTML()+
+    '<div class="g-shead"><h2>ข้อเสนอวันนี้</h2><div class="g-arrow"><iconify-icon icon="mdi:arrow-right" width="18"></iconify-icon></div></div>'+
+    '<div class="g-offers" id="offers"></div>'+
+    '<div class="g-shead"><h2>สำหรับคุณ</h2></div><div class="g-grid" id="grid"></div>'+
+    '<div class="cartbar"><span><iconify-icon icon="mdi:cart" style="vertical-align:-2px"></iconify-icon> ตะกร้า <span class="n" id="cart-n">0</span></span><span id="cart-total">฿0</span></div>';
 }
-function healthBadge(r){
-  if(!r) return '';
-  if(!r.safe) return '<div class="hbadge" style="display:flex;background:#E23744"><iconify-icon icon="mdi:close-circle"></iconify-icon>แพ้</div>';
-  if((r.health_flags||[]).length>0) return '<div class="hbadge" style="display:flex;background:#E89938"><iconify-icon icon="mdi:alert"></iconify-icon>ระวัง</div>';
-  return '<div class="hbadge" style="display:flex;background:#11A85A"><iconify-icon icon="mdi:check"></iconify-icon>เหมาะ</div>';
-}
-function healthLine(r){
-  if(!r) return '';
-  if(!r.safe) return '<div class="galert bad"><iconify-icon icon="mdi:alert"></iconify-icon><span>มี '+r.hits.join(', ')+' — คุณแพ้'+(r.max_severity?(' ('+sevTH(r.max_severity)+')'):'')+'</span></div>';
-  if((r.health_flags||[]).length>0) return '<div class="gflags">'+r.health_flags.map(f=>'<span class="gflag">'+(FLAG_LABEL[f]||f)+'</span>').join('')+'</div>';
-  return '<div class="galert good"><iconify-icon icon="mdi:heart-check"></iconify-icon><span>เหมาะกับสุขภาพคุณ</span></div>';
+function renderGrab(){
+  $('offers').innerHTML = MENU.slice(0,4).map(m=>{ const r=HEALTH[m.name]; const old=m.price+Math.round(m.price*0.2);
+    return '<div class="g-ocard"><div class="g-otw">'+healthBadge(r)+thumbImg(m,'g-othumb')+'</div><div class="g-oinfo"><div class="g-oname">'+m.name+'</div>'+(r?healthLine(r):'')+
+      '<div class="g-oprice">฿'+m.price+' <s>฿'+old+'</s> <iconify-icon class="tag" icon="mdi:tag"></iconify-icon></div></div>'+
+      '<div class="add" style="position:absolute;right:11px;bottom:11px;width:30px;height:30px;border-radius:50%;font-size:21px" onclick="ADD('+m.id+')">+</div></div>'; }).join('');
+  $('grid').innerHTML = MENU.map(m=>{ const r=HEALTH[m.name]; const seller=(m.seller && !(r&&!r.safe))?'<div class="g-seller">ยอดสั่งเยอะที่สุด</div>':'';
+    return '<div class="g-card"><div class="g-tw">'+seller+healthBadge(r)+thumbImg(m,'g-thumb')+'<div class="add" onclick="ADD('+m.id+')">+</div></div>'+
+      '<div class="g-body"><div class="g-name">'+m.name+'</div><div class="g-price">฿'+m.price+'</div>'+(r?healthLine(r):'')+'</div></div>'; }).join('');
 }
 
-function renderAll(){
-  // ข้อเสนอวันนี้ — 4 เมนูแรก พร้อมราคาลด
-  $('offers').innerHTML = MENU.slice(0,4).map(m=>{
-    const r=HEALTH[m.name]; const old=m.price+Math.round(m.price*0.2);
-    return '<div class="ocard"><div class="othumb-wrap">'+healthBadge(r)+thumbImg(m,'othumb')+'</div>'+
-      '<div class="oinfo"><div class="oname">'+m.name+'</div>'+(r?healthLine(r):'')+
-      '<div class="oprice">฿'+m.price+' <s>฿'+old+'</s> <iconify-icon class="tag" icon="mdi:tag"></iconify-icon></div></div>'+
-      '<div class="add" style="position:absolute;right:11px;bottom:11px" onclick="ADD('+m.id+')">+</div></div>';
-  }).join('');
+/* ===== LINE MAN layout ===== */
+function layoutLineman(){
+  return '<div class="cover"><img src="'+imgFor(MENU[0])+'" referrerpolicy="no-referrer" onerror="this.style.display=\'none\'" />'+
+    '<div class="topbar"><div class="cbtn light"><iconify-icon icon="mdi:chevron-left" width="24"></iconify-icon></div>'+
+    '<div class="cbtn light" style="margin-left:auto"><iconify-icon icon="mdi:export-variant" width="20"></iconify-icon></div>'+
+    '<div class="cbtn light"><iconify-icon icon="mdi:dots-vertical" width="20"></iconify-icon></div></div></div>'+
+    '<div class="l-rest"><div class="l-namerow"><h1 id="rest-title">ครัวสุขภาพดี (Healthy Kitchen) - ข้างธนาคารออมสิน</h1>'+
+      '<div class="l-nameic"><iconify-icon icon="mdi:chevron-right" width="20"></iconify-icon><iconify-icon icon="mdi:heart-outline" width="22"></iconify-icon></div></div>'+
+      '<div class="l-meta"><span class="l-rate"><iconify-icon icon="mdi:star"></iconify-icon> 4.7 <span class="c">(453)</span> <iconify-icon icon="mdi:chevron-right" width="14" style="color:#bbb"></iconify-icon></span>'+
+        '<span class="l-vip"><span class="l-vipbadge">VIP</span> Delivery <iconify-icon icon="mdi:chevron-down" width="14"></iconify-icon></span>'+
+        '<span class="l-dist">฿0 <s>฿13</s> · 1.6 กม. (26 min)</span></div></div>'+
+    '<div class="l-acts"><div class="l-act"><iconify-icon class="gi" icon="mdi:account-multiple-plus-outline"></iconify-icon> Group order</div>'+
+      '<div class="l-act"><iconify-icon class="gi" icon="mdi:numeric-2-circle"></iconify-icon> Dual-order</div>'+
+      '<div class="l-act"><iconify-icon class="gi" icon="mdi:translate"></iconify-icon> Menu language</div></div>'+
+    '<div class="l-vouchers"><div class="l-vch applied"><div class="vl"><div class="l-vcoin" style="background:linear-gradient(160deg,#FF7A00,#E8203B)"><iconify-icon icon="mdi:sale"></iconify-icon></div>'+
+        '<div><div class="l-vt1">Up to ฿50 ส่วนลด</div><div class="l-vt2">No min. spend</div></div></div><div class="vr">Remove</div></div>'+
+      '<div class="l-vch"><div class="vl"><div class="l-vcoin" style="background:#F0A500"><iconify-icon icon="mdi:currency-btc"></iconify-icon></div>'+
+        '<div><div class="l-vt1">15% cashback</div><div class="l-vt2" style="color:#999;font-weight:600">Min. spend ฿90</div></div></div><div class="vr">Apply</div></div></div>'+
+    '<div class="l-gov"><div class="gl">ไทย<br>ช่วยไทย</div><div class="gt"><div class="gt1">ร้านนี้ร่วม ไทยช่วยไทย พลัส (60/40)</div><div class="gt2">กดที่นี่เพื่อรับสิทธิผ่านแอปเป๋าตัง</div></div><div class="gbtn">ใช้สิทธิ</div></div>'+
+    ingreenHTML()+
+    '<div class="l-tabs"><iconify-icon class="l-tabic" icon="mdi:magnify"></iconify-icon><iconify-icon class="l-tabic" icon="mdi:format-list-bulleted"></iconify-icon>'+
+      '<div class="l-tab active" onclick="lmScroll(\'reorder\')">สั่งอีกครั้ง</div><div class="l-tab" onclick="lmScroll(\'popular\')">เมนูดัง คนสั่งเยอะ</div><div class="l-tab" onclick="lmScroll(\'rec\')">เมนูแนะนำ</div></div>'+
+    '<div id="lmenu"></div>'+
+    '<div class="l-vipbar"><span class="vb">VIP</span><span class="vt">Free delivery for ฿125+</span><iconify-icon icon="mdi:chevron-right" width="22"></iconify-icon></div>';
+}
+window.lmScroll=(id)=>{ const el=$('lm-'+id); if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+  document.querySelectorAll('.l-tab').forEach(t=>t.classList.remove('active'));
+  const map={reorder:0,popular:1,rec:2}; const tabs=document.querySelectorAll('.l-tab'); if(tabs[map[id]]) tabs[map[id]].classList.add('active'); };
+function lmRow(m){ const r=HEALTH[m.name];
+  return '<div class="l-row"><div class="l-rinfo"><div class="l-rname">'+m.name+'</div><div class="l-rdesc">'+m.desc+'</div><div class="l-rprice">฿'+m.price+'</div>'+(r?healthLine(r):'')+'</div>'+
+    '<div class="l-rtw">'+healthBadge(r)+thumbImg(m,'l-rthumb')+'<div class="add" onclick="ADD('+m.id+')">+</div></div></div>'; }
+function renderLineman(){
+  const reorder=[MENU[0],MENU[3]], popular=MENU.filter(m=>m.seller), rec=MENU;
+  $('lmenu').innerHTML =
+    '<div class="l-sec" id="lm-reorder">สั่งอีกครั้ง</div><div class="l-list">'+reorder.map(lmRow).join('')+'</div>'+
+    '<div class="l-sec" id="lm-popular">เมนูดัง คนสั่งเยอะ</div><div class="l-list">'+popular.map(lmRow).join('')+'</div>'+
+    '<div class="l-sec" id="lm-rec">เมนูแนะนำ</div><div class="l-list">'+rec.map(lmRow).join('')+'</div>';
+}
 
-  // สำหรับคุณ — กริด 2 คอลัมน์ ทุกเมนู
-  $('grid').innerHTML = MENU.map(m=>{
-    const r=HEALTH[m.name];
-    const seller=(m.seller && !(r && !r.safe)) ? '<div class="seller">ยอดสั่งเยอะที่สุด</div>' : '';
-    return '<div class="gcard"><div class="gthumb-wrap">'+seller+healthBadge(r)+thumbImg(m,'gthumb')+
-      '<div class="add" onclick="ADD('+m.id+')">+</div></div>'+
-      '<div class="gbody"><div class="gname">'+m.name+'</div><div class="gprice">฿'+m.price+'</div>'+(r?healthLine(r):'')+'</div></div>';
-  }).join('');
+/* ── brand switch ── */
+function detectBrand(){ const a=(getCfg().app||'').toLowerCase(); if(a.includes('line')) return 'lineman'; return 'grab'; }
+function renderMenu(){ if(BRAND==='lineman') renderLineman(); else renderGrab(); }
+function renderApp(){
+  const c=getCfg();
+  if(c.color && /^[0-9a-fA-F]{3,8}$/.test(c.color)) document.documentElement.style.setProperty('--brand','#'+c.color);
+  if(c.app) document.title=c.app;
+  BRAND=detectBrand();
+  $('root').innerHTML = BRAND==='lineman' ? layoutLineman() : layoutGrab();
+  bindHold(); renderMenu();
 }
 
 async function getRecs(){
-  const c=getCfg();
-  if(!c.consent){ openConnect(); return; }
-  banner('');
+  const c=getCfg(); if(!c.consent){ openConnect(); return; } banner('');
   try {
-    const res=await fetch(c.base+'/api/partner/v1/green-check',{
-      method:'POST',
+    const res=await fetch(c.base+'/api/partner/v1/green-check',{ method:'POST',
       headers:{ 'Content-Type':'application/json','Authorization':'Bearer '+c.key,'X-Consent-Token':c.consent,'ngrok-skip-browser-warning':'true' },
-      body: JSON.stringify({ items: MENU.map(m=>({ name:m.name, ingredients:m.ingredients, kcal:m.kcal, sodium_mg:m.sodium_mg, sugar_g:m.sugar_g })) }),
-    });
-    if(res.status===403){ setConn(false); HEALTH={}; renderAll(); banner('การเชื่อมต่อถูกยกเลิก — ไม่มีคำแนะนำส่วนตัว'); toast('การเชื่อมต่อถูกยกเลิก'); return; }
+      body: JSON.stringify({ items: MENU.map(m=>({ name:m.name, ingredients:m.ingredients, kcal:m.kcal, sodium_mg:m.sodium_mg, sugar_g:m.sugar_g })) }), });
+    if(res.status===403){ setConn(false); HEALTH={}; renderMenu(); banner('การเชื่อมต่อถูกยกเลิก — ไม่มีคำแนะนำส่วนตัว'); toast('การเชื่อมต่อถูกยกเลิก'); return; }
     if(!res.ok){ const e=await res.json().catch(()=>({})); toast('เชื่อมต่อไม่สำเร็จ: '+(e.message||e.error||res.status)); return; }
     const data=await res.json();
     HEALTH={}; (data.results||[]).forEach(r=>{ HEALTH[r.name]={ safe:r.allergy.safe, hits:r.allergy.hits, max_severity:r.allergy.max_severity, health_flags:r.health_flags }; });
-    setConn(true); renderAll(); toast('ปรับเมนูให้เหมาะกับคุณแล้ว ✓');
+    setConn(true); renderMenu(); toast('ปรับเมนูให้เหมาะกับคุณแล้ว ✓');
   } catch(err){ toast('เชื่อมต่อไม่สำเร็จ ลองใหม่อีกครั้ง'); console.error(err); }
 }
 
-// countdown ลดแรง
-let cd=14*60+54;
-setInterval(()=>{ cd=cd>0?cd-1:14*60+54; const m=String(Math.floor(cd/60)).padStart(2,'0'),s=String(cd%60).padStart(2,'0'); const el=$('cd'); if(el) el.innerHTML='<span>00</span><span>'+m+'</span><span>'+s+'</span>'; },1000);
+// countdown (grab)
+setInterval(()=>{ const el=$('cd'); if(!el) return; let cd=(window._cd=(window._cd>0?window._cd-1:14*60+54)); const m=String(Math.floor(cd/60)).padStart(2,'0'),s=String(cd%60).padStart(2,'0'); el.innerHTML='<span>00</span><span>'+m+'</span><span>'+s+'</span>'; },1000);
+window._cd=14*60+54;
 
-// เปิดมาจากแอป InGreen แบบ redirect → เชื่อม + ธีมตามแบรนด์
-(function initFromUrl(){
-  try {
-    const p=new URLSearchParams(location.search); const ct=p.get('ct');
-    if(ct){ const cur=getCfg();
-      setCfg({ ...cur, base:(p.get('api')||cur.base).replace(/\/$/,''), key:p.get('key')||cur.key, consent:ct, app:p.get('app')||cur.app||'', color:p.get('color')||cur.color||'' });
-      history.replaceState(null,'',location.pathname);
-    }
-  } catch {}
-})();
+(function initFromUrl(){ try { const p=new URLSearchParams(location.search); const ct=p.get('ct');
+  if(ct){ const cur=getCfg(); setCfg({ ...cur, base:(p.get('api')||cur.base).replace(/\/$/,''), key:p.get('key')||cur.key, consent:ct, app:p.get('app')||cur.app||'', color:p.get('color')||cur.color||'' }); history.replaceState(null,'',location.pathname); } } catch {} })();
 
-applyBrand(); bindHold(); renderAll();
+renderApp();
 if(getCfg().consent) getRecs();
 </script>
 </body>
