@@ -24,28 +24,28 @@ const DEMO_PARTNERS = [
         api_key: 'pk_live_grabfood_demo_001',
         brand_color: '#00B14F', logo_icon: 'mdi:motorbike',
         description: 'สั่งอาหารเดลิเวอรี',
-        allowed_scopes: ['allergy', 'health', 'sustainability'],
+        allowed_scopes: ['allergy', 'health'],
     },
     {
         slug: 'lineman', name: 'LINE MAN',
         api_key: 'pk_live_lineman_demo_002',
         brand_color: '#06C755', logo_icon: 'mdi:moped',
         description: 'สั่งอาหาร · ส่งของ · เดลิเวอรี',
-        allowed_scopes: ['allergy', 'health', 'sustainability'],
+        allowed_scopes: ['allergy', 'health'],
     },
     {
         slug: 'shopeefood', name: 'Shopee Food',
         api_key: 'pk_live_shopeefood_demo_003',
         brand_color: '#EE4D2D', logo_icon: 'mdi:storefront',
         description: 'สั่งอาหารจาก Shopee',
-        allowed_scopes: ['allergy', 'health', 'sustainability'],
+        allowed_scopes: ['allergy', 'health'],
     },
     {
         slug: 'foodpanda', name: 'foodpanda',
         api_key: 'pk_live_foodpanda_demo_004',
         brand_color: '#D70F64', logo_icon: 'mdi:silverware-fork-knife',
         description: 'แอปสั่งอาหารเดลิเวอรี',
-        allowed_scopes: ['allergy', 'health', 'sustainability'],
+        allowed_scopes: ['allergy', 'health'],
     },
 ];
 
