@@ -9,28 +9,31 @@
   :root { --brand: #00B14F; --ingreen: #2D8048; }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body { font-family: 'Segoe UI', system-ui, 'Sukhumvit Set', sans-serif; background: #DDE1E4; color: #1b1b1b; display: flex; justify-content: center; padding: 16px; }
-  .app { width: 100%; max-width: 430px; background: #F4F5F7; border-radius: 30px; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,.18); position: relative; }
+  .app { width: 100%; max-width: 430px; background: #F4F5F7; border-radius: 30px; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,.18); position: relative; padding-bottom: 64px; }
 
-  /* ── app bar ── */
-  .appbar { background: var(--brand); color: #fff; padding: 16px 16px 14px; display: flex; align-items: center; gap: 12px; }
-  .appbar .ic { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,.18); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .appbar { background: var(--brand); color: #fff; padding: 15px 14px 13px; display: flex; align-items: center; gap: 11px; }
+  .appbar .ic { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.2); display: flex; align-items: center; justify-content: center; cursor: pointer; }
   .appbar .title { font-size: 17px; font-weight: 800; flex: 1; letter-spacing: -.2px; }
 
-  /* ── hero / restaurant ── */
-  .hero { height: 130px; background: var(--brand); position: relative; }
-  .hero .emojis { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 14px; font-size: 40px; opacity: .32; }
-  .promo { position: absolute; left: 14px; bottom: 12px; background: #FFD400; color: #5a3d00; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 8px; display: flex; align-items: center; gap: 5px; }
-  .rest { background: #fff; margin: -22px 14px 0; border-radius: 18px; padding: 15px 16px; box-shadow: 0 8px 24px rgba(0,0,0,.08); position: relative; }
+  /* cover + restaurant */
+  .cover { height: 150px; position: relative; background: var(--brand); overflow: hidden; }
+  .cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .cover::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.05), rgba(0,0,0,.35)); }
+  .promo { position: absolute; left: 13px; bottom: 11px; z-index: 2; background: #FFD400; color: #5a3d00; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 8px; display: inline-flex; align-items: center; gap: 5px; }
+  .rest { background: #fff; margin: -24px 13px 0; border-radius: 18px; padding: 14px 15px; box-shadow: 0 8px 24px rgba(0,0,0,.09); position: relative; }
   .rest h1 { font-size: 20px; font-weight: 800; letter-spacing: -.3px; user-select: none; }
   .rest .meta { display: flex; align-items: center; gap: 6px; margin-top: 7px; font-size: 12.5px; color: #555; flex-wrap: wrap; }
   .rest .dot { color: #ccc; }
   .rest .star { color: var(--brand); font-weight: 800; display: inline-flex; align-items: center; gap: 3px; }
+  .rest .open { color: #11A85A; font-weight: 700; }
   .rest .cats { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
   .rest .cat { font-size: 11px; background: #F1F3F2; color: #666; padding: 3px 9px; border-radius: 7px; }
 
-  /* ── InGreen connection strip (คงสี InGreen เสมอ ไม่ตามแบรนด์แอป) ── */
-  .ingreen { margin: 12px 14px 0; border-radius: 14px; padding: 12px 13px; display: flex; align-items: center; gap: 10px; cursor: pointer;
-             background: #F4FBEE; border: 1.5px solid #CDE9B6; }
+  .search { margin: 12px 13px 0; background: #fff; border: 1px solid #ececec; border-radius: 12px; display: flex; align-items: center; gap: 9px; padding: 0 13px; }
+  .search input { flex: 1; border: none; outline: none; padding: 12px 0; font-size: 13.5px; font-family: inherit; background: transparent; }
+
+  /* InGreen strip (health) */
+  .ingreen { margin: 12px 13px 0; border-radius: 14px; padding: 12px 13px; display: flex; align-items: center; gap: 10px; cursor: pointer; background: #F4FBEE; border: 1.5px solid #CDE9B6; }
   .ingreen.on { background: linear-gradient(120deg,#EAF7E0,#F4FBEE); border-color: #8DD06A; }
   .ingreen .badge { width: 38px; height: 38px; border-radius: 11px; background: var(--ingreen); display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; }
   .ingreen .txt { flex: 1; min-width: 0; }
@@ -38,33 +41,43 @@
   .ingreen .t2 { font-size: 11px; color: #6a8a5a; margin-top: 2px; line-height: 1.4; }
   .ingreen .cta { font-size: 12px; font-weight: 800; color: #fff; background: var(--ingreen); padding: 7px 13px; border-radius: 10px; flex-shrink: 0; }
 
-  .banner { margin: 12px 14px 0; background: #FCEBEB; color: #A32D2D; border-radius: 12px; padding: 11px 13px; font-size: 12px; display: none; align-items: center; gap: 8px; line-height: 1.4; }
+  /* category chips */
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding: 14px 13px 2px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip { flex-shrink: 0; font-size: 12.5px; font-weight: 700; color: #666; background: #fff; border: 1px solid #e6e6e6; padding: 7px 14px; border-radius: 20px; cursor: pointer; white-space: nowrap; }
+  .chip.active { background: var(--brand); color: #fff; border-color: var(--brand); }
+
+  .banner { margin: 12px 13px 0; background: #FCEBEB; color: #A32D2D; border-radius: 12px; padding: 11px 13px; font-size: 12px; display: none; align-items: center; gap: 8px; line-height: 1.4; }
   .banner.show { display: flex; }
 
-  /* ── menu ── */
-  .menu { padding: 6px 14px 24px; }
-  .sec { font-size: 13px; color: #222; font-weight: 800; margin: 16px 2px 10px; display: flex; align-items: center; gap: 7px; }
+  .menu { padding: 4px 13px 10px; }
+  .sec { font-size: 14px; color: #1b1b1b; font-weight: 800; margin: 16px 2px 9px; scroll-margin-top: 10px; display: flex; align-items: center; gap: 7px; }
   .sec .pill { font-size: 10px; font-weight: 800; color: #00813a; background: #E7F6EC; padding: 2px 8px; border-radius: 20px; }
-  .card { background: #fff; border-radius: 16px; padding: 12px; margin-bottom: 11px; display: flex; gap: 12px; position: relative; box-shadow: 0 3px 10px rgba(0,0,0,.04); border-left: 4px solid transparent; }
-  .card.avoid { border-left-color: #E23744; }
-  .card.recommend { border-left-color: #00B14F; }
-  .card.ok { border-left-color: #E89938; }
+  .card { background: #fff; border-radius: 16px; padding: 11px; margin-bottom: 10px; display: flex; gap: 12px; position: relative; box-shadow: 0 3px 10px rgba(0,0,0,.045); }
+  .card .hl { position: absolute; left: 0; top: 14px; bottom: 14px; width: 4px; border-radius: 0 3px 3px 0; }
+  .card.avoid .hl { background: #E23744; }
+  .card.good .hl { background: #11A85A; }
+  .card.caution .hl { background: #E89938; }
   .info { flex: 1; min-width: 0; }
-  .name { font-size: 14.5px; font-weight: 700; }
-  .ings { font-size: 11px; color: #999; margin-top: 3px; line-height: 1.45; }
+  .name { font-size: 14.5px; font-weight: 700; line-height: 1.3; }
+  .desc { font-size: 11px; color: #999; margin-top: 3px; line-height: 1.4; }
   .price { font-size: 14px; color: #1b1b1b; font-weight: 800; margin-top: 7px; }
-  .thumb-wrap { position: relative; flex-shrink: 0; }
-  .thumb { width: 72px; height: 72px; border-radius: 13px; background: #F1F3F2; display: flex; align-items: center; justify-content: center; font-size: 36px; }
-  .add { position: absolute; right: -6px; bottom: -6px; width: 28px; height: 28px; border-radius: 9px; background: #fff; border: 1.5px solid #e3e3e3; color: var(--brand); font-size: 20px; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,.1); cursor: pointer; }
-  .gscore { position: absolute; left: -4px; top: -6px; min-width: 30px; height: 22px; padding: 0 6px; border-radius: 11px; color: #fff; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 2px; box-shadow: 0 2px 6px rgba(0,0,0,.15); }
+  .thumb-wrap { position: relative; flex-shrink: 0; width: 84px; height: 84px; }
+  .thumb { width: 84px; height: 84px; border-radius: 13px; object-fit: cover; background: #EEF0EF; display: block; }
+  .thumb.emoji { display: flex; align-items: center; justify-content: center; font-size: 38px; }
+  .add { position: absolute; right: -6px; bottom: -6px; width: 28px; height: 28px; border-radius: 9px; background: #fff; border: 1.5px solid #e3e3e3; color: var(--brand); font-size: 20px; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,.12); cursor: pointer; }
+  .hbadge { position: absolute; left: -4px; top: -6px; height: 22px; padding: 0 7px; border-radius: 11px; color: #fff; font-size: 10px; font-weight: 800; display: none; align-items: center; gap: 3px; box-shadow: 0 2px 6px rgba(0,0,0,.18); }
   .alert { display: flex; align-items: center; gap: 7px; border-radius: 9px; padding: 7px 9px; margin-top: 8px; font-size: 11.5px; line-height: 1.35; }
   .alert.bad { background: #FCEBEB; color: #A32D2D; }
-  .alert.good { background: #EAF7E0; color: #2D7016; }
+  .alert.good { background: #EAF7E0; color: #1f7a3a; }
   .alert.warn { background: #FAEEDA; color: #854F0B; }
   .flags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
-  .flag { font-size: 10px; background: #F1F3F2; color: #777; padding: 2px 8px; border-radius: 7px; }
+  .flag { font-size: 10px; background: #FFF3E0; color: #B26A00; padding: 2px 8px; border-radius: 7px; font-weight: 700; }
 
-  /* ── modal ── */
+  .cartbar { position: absolute; left: 0; right: 0; bottom: 0; background: var(--brand); color: #fff; padding: 15px 18px; display: flex; align-items: center; justify-content: space-between; font-weight: 800; font-size: 14px; }
+  .cartbar .n { background: rgba(255,255,255,.25); border-radius: 8px; padding: 3px 9px; font-size: 12px; }
+
+  /* modal */
   .overlay { position: fixed; inset: 0; background: rgba(20,30,15,.5); display: none; align-items: flex-end; justify-content: center; z-index: 40; }
   .overlay.show { display: flex; }
   .sheet { background: #fff; width: 100%; max-width: 430px; border-radius: 24px 24px 0 0; padding: 20px 20px 26px; }
@@ -73,14 +86,14 @@
   .sheet .mlogo { width: 46px; height: 46px; border-radius: 12px; background: var(--ingreen); display: flex; align-items: center; justify-content: center; color: #fff; }
   .sheet h2 { font-size: 17px; font-weight: 800; }
   .sheet .msub { font-size: 12px; color: #888; margin-top: 1px; }
-  .sheet p.desc { font-size: 13px; color: #555; line-height: 1.55; margin: 14px 0 6px; }
+  .sheet p.d { font-size: 13px; color: #555; line-height: 1.55; margin: 14px 0 6px; }
   .sheet label { display: block; font-size: 11px; color: #888; margin: 12px 0 4px; font-weight: 700; }
   .sheet input { width: 100%; padding: 13px 14px; border-radius: 13px; border: 1.5px solid #E3E3E3; background: #FAFAFA; font-size: 14px; font-family: inherit; }
   .sheet input:focus { outline: none; border-color: var(--ingreen); background: #fff; }
   .hint { font-size: 11.5px; color: #8a8a8a; margin-top: 8px; line-height: 1.5; display: flex; gap: 6px; align-items: flex-start; }
   .hint b { color: #00813a; }
   .mbtns { display: flex; gap: 10px; margin-top: 20px; }
-  .mbtns button { flex: 1; padding: 14px; border: none; border-radius: 14px; font-weight: 800; font-size: 14px; cursor: pointer; font-family: inherit; }
+  .mbtns button { padding: 14px; border: none; border-radius: 14px; font-weight: 800; font-size: 14px; cursor: pointer; font-family: inherit; }
   .b-cancel { background: #fff; color: #888; border: 1.5px solid #ddd !important; flex: 1; }
   .b-go { background: var(--ingreen); color: #fff; flex: 2; }
   .adv-fields { display: none; }
@@ -95,51 +108,63 @@
   <div class="appbar">
     <div class="ic"><iconify-icon icon="mdi:arrow-left" width="20"></iconify-icon></div>
     <div class="title" id="appbar-title">Food Delivery</div>
-    <div class="ic"><iconify-icon icon="mdi:magnify" width="20"></iconify-icon></div>
+    <div class="ic"><iconify-icon icon="mdi:heart-outline" width="20"></iconify-icon></div>
     <div class="ic"><iconify-icon icon="mdi:cart-outline" width="20"></iconify-icon></div>
   </div>
 
-  <div class="hero">
-    <div class="emojis">🥗 🍜 🍚 🍲 🥦</div>
+  <div class="cover">
+    <img src="https://loremflickr.com/600/300/thai,food,restaurant?lock=21" referrerpolicy="no-referrer" onerror="this.style.display='none'" />
     <div class="promo"><iconify-icon icon="mdi:sale"></iconify-icon> ลด 50.- ส่งฟรี</div>
   </div>
 
   <div class="rest">
     <h1 id="rest-title">ครัวรักษ์โลก</h1>
     <div class="meta">
-      <span class="star"><iconify-icon icon="mdi:star"></iconify-icon> 4.8</span>
-      <span>(2.1k+)</span><span class="dot">•</span>
-      <span><iconify-icon icon="mdi:motorbike" style="vertical-align:-2px"></iconify-icon> 20-30 นาที</span>
+      <span class="star"><iconify-icon icon="mdi:star"></iconify-icon> 4.8</span><span>(2.1k+)</span>
+      <span class="dot">•</span><span><iconify-icon icon="mdi:motorbike" style="vertical-align:-2px"></iconify-icon> 20-30 นาที</span>
       <span class="dot">•</span><span>฿0 ค่าส่ง</span>
     </div>
+    <div class="meta" style="margin-top:4px">
+      <span><iconify-icon icon="mdi:map-marker-outline" style="vertical-align:-2px"></iconify-icon> 1.2 กม.</span>
+      <span class="dot">•</span><span class="open">เปิดอยู่</span><span class="dot">•</span><span>฿฿</span>
+    </div>
     <div class="cats">
-      <span class="cat">อาหารตามสั่ง</span><span class="cat">เพื่อสุขภาพ</span><span class="cat">รักษ์โลก</span>
+      <span class="cat">อาหารตามสั่ง</span><span class="cat">อาหารไทย</span><span class="cat">เพื่อสุขภาพ</span>
     </div>
   </div>
 
-  <!-- InGreen connection strip -->
+  <div class="search">
+    <iconify-icon icon="mdi:magnify" width="19" style="color:#aaa"></iconify-icon>
+    <input id="q" placeholder="ค้นหาเมนูในร้านนี้" oninput="renderAll()" />
+  </div>
+
   <div class="ingreen" id="conn" onclick="onConnClick()">
-    <div class="badge"><iconify-icon icon="mdi:leaf" width="22"></iconify-icon></div>
+    <div class="badge"><iconify-icon icon="mdi:heart-pulse" width="22"></iconify-icon></div>
     <div class="txt">
       <div class="t1" id="conn-t1"><iconify-icon icon="mdi:link-variant"></iconify-icon> เชื่อมบัญชี InGreen</div>
-      <div class="t2" id="conn-t2">รับคำเตือนเมนูที่คุณแพ้ และเมนูที่ดีต่อสุขภาพ เฉพาะคุณ</div>
+      <div class="t2" id="conn-t2">เตือนเมนูที่คุณแพ้ และแนะนำเมนูที่ดีต่อสุขภาพ เฉพาะคุณ</div>
     </div>
     <div class="cta" id="conn-cta">เชื่อม</div>
   </div>
 
+  <div class="chips" id="chips"></div>
   <div class="banner" id="banner"><iconify-icon icon="mdi:lock-alert"></iconify-icon><span id="banner-text"></span></div>
   <div class="menu" id="menu"></div>
+
+  <div class="cartbar">
+    <span><iconify-icon icon="mdi:cart" style="vertical-align:-2px"></iconify-icon> ตะกร้า <span class="n" id="cart-n">0</span></span>
+    <span id="cart-total">฿0</span>
+  </div>
 </div>
 
-<!-- Connect InGreen modal -->
 <div class="overlay" id="connect-modal">
   <div class="sheet">
     <div class="grip"></div>
     <div class="mhead">
-      <div class="mlogo"><iconify-icon icon="mdi:leaf" width="26"></iconify-icon></div>
-      <div><h2>เชื่อมต่อกับ InGreen</h2><div class="msub">เพื่อรับคำแนะนำอาหารที่เหมาะกับคุณ</div></div>
+      <div class="mlogo"><iconify-icon icon="mdi:heart-pulse" width="26"></iconify-icon></div>
+      <div><h2>เชื่อมต่อกับ InGreen</h2><div class="msub">เพื่อรับคำแนะนำอาหารที่เหมาะกับสุขภาพคุณ</div></div>
     </div>
-    <p class="desc">ใส่รหัสเชื่อมต่อจากแอป InGreen ของคุณ แล้วเราจะช่วยเตือนเมนูที่คุณแพ้ และแนะนำเมนูที่ดีต่อสุขภาพให้โดยอัตโนมัติ</p>
+    <p class="d">ใส่รหัสเชื่อมต่อจากแอป InGreen ของคุณ แล้วเราจะช่วยเตือนเมนูที่คุณแพ้ และแนะนำเมนูที่ดีต่อสุขภาพให้โดยอัตโนมัติ</p>
     <label>รหัสเชื่อมต่อ</label>
     <input id="in-consent" placeholder="วางรหัสที่นี่" autocomplete="off" />
     <div class="hint"><iconify-icon icon="mdi:information-outline" style="margin-top:1px"></iconify-icon>
@@ -160,28 +185,43 @@
 <div class="toast" id="toast"></div>
 
 <script>
+// img = คำค้นรูปอาหารจริง (loremflickr) · emoji = สำรองถ้ารูปโหลดไม่ขึ้น
 const MENU = [
-  { id:1, name:'ผัดไทยกุ้งสด',            price:75,  emoji:'🍤', ingredients:['shrimp','peanut','egg','fish sauce','rice noodle'], kcal:620, sodium_mg:1400, sugar_g:18, packaging:'plastic',     tags:['local'] },
-  { id:2, name:'สลัดเต้าหู้ออร์แกนิก',     price:89,  emoji:'🥗', ingredients:['tofu','lettuce','tomato','olive oil'],            kcal:320, sodium_mg:380,  sugar_g:6,  packaging:'compostable', tags:['organic','vegan','plant_based','local'] },
-  { id:3, name:'ข้าวมันไก่',              price:50,  emoji:'🍗', ingredients:['chicken','rice','soy sauce','garlic'],            kcal:590, sodium_mg:1100, sugar_g:4,  packaging:'paper',       tags:['local'] },
-  { id:4, name:'ต้มยำกุ้งน้ำข้น',         price:120, emoji:'🍲', ingredients:['shrimp','chili','milk','lemongrass'],             kcal:480, sodium_mg:1600, sugar_g:8,  packaging:'plastic',     tags:[] },
-  { id:5, name:'ข้าวกล้องผัดผักรวม (เจ)',  price:65,  emoji:'🍚', ingredients:['brown rice','mixed vegetable','tofu'],            kcal:410, sodium_mg:520,  sugar_g:5,  packaging:'compostable', tags:['vegan','plant_based','organic'] },
+  { id:1,  cat:'pop',    name:'ผัดไทยกุ้งสด',           price:75,  emoji:'🍤', img:'padthai,noodles',     desc:'เส้นจันท์ผัดซอสมะขาม กุ้งสด ถั่วลิสง', ingredients:['shrimp','peanut','egg','fish sauce','rice noodle'], kcal:620, sodium_mg:1400, sugar_g:18 },
+  { id:2,  cat:'pop',    name:'ข้าวกะเพราหมูสับไข่ดาว',  price:60,  emoji:'🍳', img:'thai,basil,pork,rice', desc:'กะเพราหมูสับเผ็ดร้อน ราดข้าว ไข่ดาว',  ingredients:['pork','basil','egg','chili','soy sauce','garlic'], kcal:700, sodium_mg:1500, sugar_g:6 },
+  { id:3,  cat:'pop',    name:'ต้มยำกุ้งน้ำข้น',         price:120, emoji:'🍲', img:'tomyum,soup',          desc:'รสจัดจ้าน กุ้งแม่น้ำ เห็ด ตะไคร้',     ingredients:['shrimp','chili','milk','lemongrass','lime'], kcal:480, sodium_mg:1600, sugar_g:8 },
+  { id:4,  cat:'main',   name:'ข้าวมันไก่',             price:50,  emoji:'🍗', img:'chicken,rice',         desc:'ไก่นุ่ม ข้าวมันหอม น้ำจิ้มเต้าเจี้ยว',  ingredients:['chicken','rice','soy sauce','garlic'], kcal:590, sodium_mg:1100, sugar_g:4 },
+  { id:5,  cat:'main',   name:'แกงเขียวหวานไก่',         price:79,  emoji:'🍛', img:'green,curry,thai',     desc:'แกงเขียวหวานเข้มข้น ไก่ มะเขือ',       ingredients:['chicken','coconut milk','chili','eggplant'], kcal:520, sodium_mg:1300, sugar_g:10 },
+  { id:6,  cat:'main',   name:'ส้มตำไทย',               price:55,  emoji:'🥗', img:'papaya,salad',         desc:'มะละกอสด ถั่วลิสง กุ้งแห้ง รสแซ่บ',     ingredients:['papaya','peanut','dried shrimp','fish sauce','chili'], kcal:230, sodium_mg:900, sugar_g:14 },
+  { id:7,  cat:'health', name:'สลัดอกไก่ออร์แกนิก',      price:89,  emoji:'🥗', img:'chicken,salad,healthy',desc:'อกไก่ย่าง ผักออร์แกนิก น้ำสลัดงา',     ingredients:['chicken','lettuce','tomato','olive oil'], kcal:320, sodium_mg:380, sugar_g:6 },
+  { id:8,  cat:'health', name:'ข้าวกล้องผัดผักรวม (เจ)',  price:65,  emoji:'🍚', img:'fried,rice,vegetable', desc:'ข้าวกล้อง ผักรวม เต้าหู้ ไม่ใส่เนื้อ',  ingredients:['brown rice','mixed vegetable','tofu'], kcal:410, sodium_mg:520, sugar_g:5 },
+  { id:9,  cat:'health', name:'โจ๊กข้าวกล้องหมูสับ',      price:55,  emoji:'🥣', img:'rice,porridge,congee', desc:'โจ๊กข้าวกล้อง หมูสับ ขิงซอย ไข่ลวก',   ingredients:['brown rice','pork','ginger','egg'], kcal:300, sodium_mg:700, sugar_g:3 },
+  { id:10, cat:'drink',  name:'ชาไทยเย็น',              price:45,  emoji:'🧋', img:'thai,milk,tea',        desc:'ชาไทยหอมเข้ม นม หวานมัน',             ingredients:['tea','milk','sugar'], kcal:280, sodium_mg:60, sugar_g:38 },
+  { id:11, cat:'drink',  name:'น้ำมะนาวโซดา',           price:39,  emoji:'🍋', img:'lemon,soda,drink',     desc:'มะนาวคั้นสด โซดาซ่า สดชื่น',           ingredients:['lime','soda','sugar'], kcal:90, sodium_mg:20, sugar_g:16 },
+  { id:12, cat:'drink',  name:'มะม่วงข้าวเหนียว',        price:69,  emoji:'🥭', img:'mango,sticky,rice',    desc:'มะม่วงสุก ข้าวเหนียวมูน กะทิสด',       ingredients:['mango','sticky rice','coconut milk'], kcal:480, sodium_mg:40, sugar_g:45 },
+];
+const SECTIONS = [
+  { key:'pop',    label:'เมนูแนะนำ' },
+  { key:'main',   label:'จานหลัก' },
+  { key:'health', label:'เพื่อสุขภาพ' },
+  { key:'drink',  label:'เครื่องดื่ม & ของหวาน' },
 ];
 const FLAG_LABEL = { high_sodium:'โซเดียมสูง', watch_sodium:'ระวังโซเดียม', high_sugar:'น้ำตาลสูง', high_calorie:'แคลอรี่สูง', diabetes_caution:'ระวังเบาหวาน' };
-const REC = { avoid:{cls:'avoid'}, recommend:{cls:'recommend'}, ok:{cls:'ok'} };
 const DEFAULTS = { base:'https://thesis-backend-q3qm.onrender.com', key:'pk_live_grabfood_demo_001', consent:'', app:'', color:'' };
+
+let HEALTH = {};   // name → { safe, hits, max_severity, health_flags }
+let cart = 0, cartTotal = 0, activeCat = 'all';
 
 const $=(id)=>document.getElementById(id);
 function getCfg(){ try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem('mockfood_cfg')||'{}') }; } catch { return {...DEFAULTS}; } }
 function setCfg(c){ localStorage.setItem('mockfood_cfg', JSON.stringify(c)); }
+function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(window._tt); window._tt=setTimeout(()=>t.classList.remove('show'),1900); }
 
 function applyBrand(){
   const c=getCfg();
   if(c.color && /^[0-9a-fA-F]{3,8}$/.test(c.color)) document.documentElement.style.setProperty('--brand','#'+c.color);
   if(c.app){ $('appbar-title').textContent=c.app; document.title=c.app; }
 }
-
-function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(window._tt); window._tt=setTimeout(()=>t.classList.remove('show'),1900); }
 
 function onConnClick(){ getCfg().consent ? getRecs() : openConnect(); }
 function openConnect(){ const c=getCfg(); $('in-consent').value=c.consent||''; $('in-base').value=c.base; $('in-key').value=c.key; $('connect-modal').classList.add('show'); }
@@ -193,60 +233,79 @@ function doConnect(){
   setCfg({ ...cur, base:($('in-base').value.trim()||DEFAULTS.base).replace(/\/$/,''), key:$('in-key').value.trim()||DEFAULTS.key, consent });
   closeConnect(); toast('กำลังเชื่อมต่อ…'); getRecs();
 }
-/* กดค้างที่ชื่อร้าน → เผยช่องตั้งค่าขั้นสูง (สำหรับนักพัฒนา/เดโม) */
-let _hold; const rt=$('rest-title');
-const holdStart=()=>{ _hold=setTimeout(()=>{ openConnect(); $('adv').classList.add('show'); toast('โหมดนักพัฒนา'); },700); };
-const holdEnd=()=>clearTimeout(_hold);
-rt.addEventListener('mousedown',holdStart); rt.addEventListener('touchstart',holdStart,{passive:true});
-rt.addEventListener('mouseup',holdEnd); rt.addEventListener('mouseleave',holdEnd); rt.addEventListener('touchend',holdEnd);
+let _hold; const rtEl=()=>$('rest-title');
+function bindHold(){ const rt=rtEl(); const s=()=>{ _hold=setTimeout(()=>{ openConnect(); $('adv').classList.add('show'); toast('โหมดนักพัฒนา'); },700); }; const e=()=>clearTimeout(_hold);
+  rt.addEventListener('mousedown',s); rt.addEventListener('touchstart',s,{passive:true}); rt.addEventListener('mouseup',e); rt.addEventListener('mouseleave',e); rt.addEventListener('touchend',e); }
 
-function setConn(connected, subject){
+function setConn(connected){
   const el=$('conn');
   if(connected){
     el.classList.add('on');
     $('conn-t1').innerHTML='<iconify-icon icon="mdi:check-decagram" style="color:#2D8048"></iconify-icon> เชื่อม InGreen แล้ว';
-    $('conn-t2').textContent='เมนูถูกปรับให้เหมาะกับคุณแล้ว';
+    $('conn-t2').textContent='เมนูถูกปรับให้เหมาะกับสุขภาพคุณแล้ว';
     $('conn-cta').textContent='รีเฟรช';
   } else {
     el.classList.remove('on');
     $('conn-t1').innerHTML='<iconify-icon icon="mdi:link-variant"></iconify-icon> เชื่อมบัญชี InGreen';
-    $('conn-t2').textContent='รับคำเตือนเมนูที่คุณแพ้ และเมนูที่ดีต่อสุขภาพ เฉพาะคุณ';
+    $('conn-t2').textContent='เตือนเมนูที่คุณแพ้ และแนะนำเมนูที่ดีต่อสุขภาพ เฉพาะคุณ';
     $('conn-cta').textContent='เชื่อม';
   }
 }
 function banner(msg){ const b=$('banner'); if(!msg){ b.classList.remove('show'); return; } $('banner-text').textContent=msg; b.classList.add('show'); }
 function sevTH(s){ return ({mild:'เล็กน้อย',medium:'ปานกลาง',severe:'รุนแรง'})[s]||s; }
-function scoreColor(n){ return n>=80?'#00B14F':(n>=55?'#E89938':'#E23744'); }
 
-function renderMenu(results){
-  const byName={}; (results||[]).forEach(r=>byName[r.name]=r);
-  const personalized = !!results;
-  $('menu').innerHTML =
-    '<div class="sec">'+(personalized?'แนะนำสำหรับคุณ <span class="pill"><iconify-icon icon="mdi:leaf" style="vertical-align:-1px"></iconify-icon> InGreen</span>':'เมนูแนะนำ')+'</div>' +
-    MENU.map(m=>{
-      const r=byName[m.name];
-      let cls='', extra='', gscore='';
-      if(r){
-        cls=(REC[r.recommendation]||REC.ok).cls;
-        gscore='<div class="gscore" style="background:'+scoreColor(r.green_score)+'"><iconify-icon icon="mdi:leaf"></iconify-icon>'+r.green_score+'</div>';
-        if(!r.allergy.safe){
-          const hits=r.allergy.hits.join(', ');
-          extra+='<div class="alert bad"><iconify-icon icon="mdi:alert"></iconify-icon><span>มี <b>'+hits+'</b> — คุณแพ้'+(r.allergy.max_severity?(' ('+sevTH(r.allergy.max_severity)+')'):'')+'</span></div>';
-        } else if(r.recommendation==='recommend'){
-          extra+='<div class="alert good"><iconify-icon icon="mdi:leaf-circle"></iconify-icon><span>ปลอดภัยสำหรับคุณ · ตัวเลือกรักษ์โลก</span></div>';
-        } else {
-          extra+='<div class="alert warn"><iconify-icon icon="mdi:information-outline"></iconify-icon><span>ไม่มีสารก่อภูมิแพ้ของคุณ</span></div>';
-        }
-        const flags=(r.health_flags||[]).map(f=>'<span class="flag">'+(FLAG_LABEL[f]||f)+'</span>').join('');
-        if(flags) extra+='<div class="flags">'+flags+'</div>';
-      }
-      return '<div class="card '+cls+'">'+
-        '<div class="thumb-wrap">'+gscore+'<div class="thumb">'+m.emoji+'</div><div class="add">+</div></div>'+
-        '<div class="info"><div class="name">'+m.name+'</div>'+
-        '<div class="ings">'+m.ingredients.join(', ')+'</div>'+
-        '<div class="price">฿'+m.price+'</div>'+extra+'</div></div>';
-    }).join('');
+function addToCart(m){ cart++; cartTotal+=m.price; $('cart-n').textContent=cart; $('cart-total').textContent='฿'+cartTotal; toast('เพิ่ม “'+m.name+'” ลงตะกร้า'); }
+
+function renderChips(){
+  const cats=[{key:'all',label:'ทั้งหมด'}].concat(SECTIONS);
+  $('chips').innerHTML=cats.map(c=>'<div class="chip'+(activeCat===c.key?' active':'')+'" onclick="setCat(\''+c.key+'\')">'+c.label+'</div>').join('');
 }
+function setCat(k){ activeCat=k; renderChips(); renderAll();
+  if(k!=='all'){ const el=document.getElementById('sec-'+k); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); } }
+
+function cardHTML(m){
+  const r=HEALTH[m.name];
+  let cls='', extra='', hbadge='';
+  if(r){
+    if(!r.safe){
+      cls='avoid';
+      hbadge='<div class="hbadge" style="display:flex;background:#E23744"><iconify-icon icon="mdi:close-circle"></iconify-icon>แพ้</div>';
+      extra='<div class="alert bad"><iconify-icon icon="mdi:alert"></iconify-icon><span>มี <b>'+r.hits.join(', ')+'</b> — คุณแพ้'+(r.max_severity?(' ('+sevTH(r.max_severity)+')'):'')+'</span></div>';
+    } else if((r.health_flags||[]).length>0){
+      cls='caution';
+      hbadge='<div class="hbadge" style="display:flex;background:#E89938"><iconify-icon icon="mdi:alert-outline"></iconify-icon>ระวัง</div>';
+      extra='<div class="flags">'+r.health_flags.map(f=>'<span class="flag">'+(FLAG_LABEL[f]||f)+'</span>').join('')+'</div>';
+    } else {
+      cls='good';
+      hbadge='<div class="hbadge" style="display:flex;background:#11A85A"><iconify-icon icon="mdi:check"></iconify-icon>เหมาะ</div>';
+      extra='<div class="alert good"><iconify-icon icon="mdi:heart-check"></iconify-icon><span>เหมาะกับสุขภาพคุณ · ไม่มีสารก่อภูมิแพ้</span></div>';
+    }
+  }
+  const imgUrl='https://loremflickr.com/200/200/'+encodeURIComponent(m.img)+'?lock='+m.id;
+  const thumb='<img class="thumb" src="'+imgUrl+'" referrerpolicy="no-referrer" loading="lazy" onerror="imgFallback(this,\''+m.emoji+'\')" />';
+  return '<div class="card '+cls+'"><div class="hl"></div>'+
+    '<div class="thumb-wrap">'+hbadge+thumb+'<div class="add" onclick="ADD('+m.id+')">+</div></div>'+
+    '<div class="info"><div class="name">'+m.name+'</div><div class="desc">'+m.desc+'</div>'+
+    '<div class="price">฿'+m.price+'</div>'+extra+'</div></div>';
+}
+
+function renderAll(){
+  const q=($('q').value||'').trim().toLowerCase();
+  const personalized=Object.keys(HEALTH).length>0;
+  let html='';
+  for(const sec of SECTIONS){
+    let items=MENU.filter(m=>m.cat===sec.key);
+    if(q) items=items.filter(m=> (m.name+' '+m.desc+' '+m.ingredients.join(' ')).toLowerCase().includes(q));
+    if(activeCat!=='all' && activeCat!==sec.key) continue;
+    if(items.length===0) continue;
+    const pill=(sec.key==='health'&&personalized)?' <span class="pill"><iconify-icon icon="mdi:heart-pulse" style="vertical-align:-1px"></iconify-icon> ปรับโดย InGreen</span>':'';
+    html+='<div class="sec" id="sec-'+sec.key+'">'+sec.label+pill+'</div>'+items.map(cardHTML).join('');
+  }
+  $('menu').innerHTML = html || '<div style="text-align:center;color:#aaa;padding:30px;font-size:13px">ไม่พบเมนูที่ค้นหา</div>';
+}
+
+window.ADD=(id)=>{ const m=MENU.find(x=>x.id===id); if(m) addToCart(m); };
+window.imgFallback=(el,emoji)=>{ el.outerHTML='<div class="thumb emoji">'+emoji+'</div>'; };
 
 async function getRecs(){
   const c=getCfg();
@@ -256,12 +315,13 @@ async function getRecs(){
     const res=await fetch(c.base+'/api/partner/v1/green-check',{
       method:'POST',
       headers:{ 'Content-Type':'application/json','Authorization':'Bearer '+c.key,'X-Consent-Token':c.consent,'ngrok-skip-browser-warning':'true' },
-      body: JSON.stringify({ items: MENU.map(m=>({ name:m.name, ingredients:m.ingredients, kcal:m.kcal, sodium_mg:m.sodium_mg, sugar_g:m.sugar_g, packaging:m.packaging, tags:m.tags })) }),
+      body: JSON.stringify({ items: MENU.map(m=>({ name:m.name, ingredients:m.ingredients, kcal:m.kcal, sodium_mg:m.sodium_mg, sugar_g:m.sugar_g })) }),
     });
-    if(res.status===403){ setConn(false); renderMenu(null); banner('การเชื่อมต่อถูกยกเลิก — ไม่มีคำแนะนำส่วนตัว'); toast('การเชื่อมต่อถูกยกเลิก'); return; }
+    if(res.status===403){ setConn(false); HEALTH={}; renderAll(); banner('การเชื่อมต่อถูกยกเลิก — ไม่มีคำแนะนำส่วนตัว'); toast('การเชื่อมต่อถูกยกเลิก'); return; }
     if(!res.ok){ const e=await res.json().catch(()=>({})); toast('เชื่อมต่อไม่สำเร็จ: '+(e.message||e.error||res.status)); return; }
     const data=await res.json();
-    setConn(true, data.subject); renderMenu(data.results); toast('ปรับเมนูให้คุณแล้ว ✓');
+    HEALTH={}; (data.results||[]).forEach(r=>{ HEALTH[r.name]={ safe:r.allergy.safe, hits:r.allergy.hits, max_severity:r.allergy.max_severity, health_flags:r.health_flags }; });
+    setConn(true); renderAll(); toast('ปรับเมนูให้เหมาะกับคุณแล้ว ✓');
   } catch(err){ toast('เชื่อมต่อไม่สำเร็จ ลองใหม่อีกครั้ง'); console.error(err); }
 }
 
@@ -272,22 +332,14 @@ async function getRecs(){
     const ct=p.get('ct');
     if(ct){
       const cur=getCfg();
-      setCfg({
-        ...cur,
-        base:(p.get('api')||cur.base).replace(/\/$/,''),
-        key:p.get('key')||cur.key,
-        consent:ct,
-        app:p.get('app')||cur.app||'',
-        color:p.get('color')||cur.color||'',
-      });
-      history.replaceState(null,'',location.pathname); // ลบพารามิเตอร์ออกจาก URL bar (ความเป็นส่วนตัว)
+      setCfg({ ...cur, base:(p.get('api')||cur.base).replace(/\/$/,''), key:p.get('key')||cur.key, consent:ct, app:p.get('app')||cur.app||'', color:p.get('color')||cur.color||'' });
+      history.replaceState(null,'',location.pathname);
     }
   } catch {}
 })();
 
-applyBrand();
-renderMenu(null);
-if(getCfg().consent) getRecs();   // มี token (จาก URL หรือเคยเชื่อม) → โหลดคำแนะนำเลย
+applyBrand(); bindHold(); renderChips(); renderAll();
+if(getCfg().consent) getRecs();
 </script>
 </body>
 </html>
