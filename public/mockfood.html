@@ -208,6 +208,15 @@ const SECTIONS = [
 ];
 const FLAG_LABEL = { high_sodium:'โซเดียมสูง', watch_sodium:'ระวังโซเดียม', high_sugar:'น้ำตาลสูง', high_calorie:'แคลอรี่สูง', diabetes_caution:'ระวังเบาหวาน' };
 const DEFAULTS = { base:'https://thesis-backend-q3qm.onrender.com', key:'pk_live_grabfood_demo_001', consent:'', app:'', color:'' };
+// รูปเฉพาะจาน (จาก Wikimedia) — ตรงเมนูจริง แทนรูปสุ่มของ loremflickr
+const IMG = {
+  1:  'https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Phat_Thai_kung_Chang_Khien_street_stall.jpg/320px-Phat_Thai_kung_Chang_Khien_street_stall.jpg',
+  4:  'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Hainanese_Chicken_Rice.jpg/330px-Hainanese_Chicken_Rice.jpg',
+  6:  'https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/2013_Tam_Lao.jpg/320px-2013_Tam_Lao.jpg',
+  9:  'https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Chinese_rice_congee.jpg/320px-Chinese_rice_congee.jpg',
+  11: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Limeade.jpg/320px-Limeade.jpg',
+  12: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Mango_sticy_rice_%283859549574%29.jpg/320px-Mango_sticy_rice_%283859549574%29.jpg',
+};
 
 let HEALTH = {};   // name → { safe, hits, max_severity, health_flags }
 let cart = 0, cartTotal = 0, activeCat = 'all';
@@ -281,7 +290,7 @@ function cardHTML(m){
       extra='<div class="alert good"><iconify-icon icon="mdi:heart-check"></iconify-icon><span>เหมาะกับสุขภาพคุณ · ไม่มีสารก่อภูมิแพ้</span></div>';
     }
   }
-  const imgUrl='https://loremflickr.com/200/200/'+encodeURIComponent(m.img)+'?lock='+m.id;
+  const imgUrl=IMG[m.id]||('https://loremflickr.com/200/200/'+encodeURIComponent(m.img)+'?lock='+m.id);
   const thumb='<img class="thumb" src="'+imgUrl+'" referrerpolicy="no-referrer" loading="lazy" onerror="imgFallback(this,\''+m.emoji+'\')" />';
   return '<div class="card '+cls+'"><div class="hl"></div>'+
     '<div class="thumb-wrap">'+hbadge+thumb+'<div class="add" onclick="ADD('+m.id+')">+</div></div>'+
