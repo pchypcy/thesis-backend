@@ -208,7 +208,8 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const MENU = [
+const MENUS = {
+  grab: [
   { id:1,  name:'ผัดไทยกุ้งสด',           price:75,  emoji:'🍤', desc:'เส้นจันท์ผัดซอสมะขาม กุ้งสด ถั่วลิสง', ingredients:['shrimp','peanut','egg','fish sauce','rice noodle'], kcal:620, sodium_mg:1400, sugar_g:18 },
   { id:2,  name:'ข้าวกะเพราหมูสับไข่ดาว',  price:60,  emoji:'🍳', desc:'กะเพราหมูสับเผ็ดร้อน ราดข้าว ไข่ดาว', ingredients:['pork','basil','egg','chili','soy sauce','garlic'], kcal:700, sodium_mg:1500, sugar_g:6, seller:true },
   { id:3,  name:'ต้มยำกุ้งน้ำข้น',         price:120, emoji:'🍲', desc:'รสจัดจ้าน กุ้งแม่น้ำ เห็ด ตะไคร้', ingredients:['shrimp','chili','milk','lemongrass','lime'], kcal:480, sodium_mg:1600, sugar_g:8 },
@@ -221,10 +222,42 @@ const MENU = [
   { id:10, name:'ชาไทยเย็น',              price:45,  emoji:'🧋', desc:'ชาไทยหอมเข้ม นม หวานมัน', ingredients:['tea','milk','sugar'], kcal:280, sodium_mg:60, sugar_g:38 },
   { id:11, name:'น้ำมะนาวโซดา',           price:39,  emoji:'🍋', desc:'มะนาวคั้นสด โซดาซ่า สดชื่น', ingredients:['lime','soda','sugar'], kcal:90, sodium_mg:20, sugar_g:16 },
   { id:12, name:'มะม่วงข้าวเหนียว',        price:69,  emoji:'🥭', desc:'มะม่วงสุก ข้าวเหนียวมูน กะทิสด', ingredients:['mango','sticky rice','coconut milk'], kcal:480, sodium_mg:40, sugar_g:45 },
-];
+  ],
+  lineman: [
+  { id:21, name:'ราดหน้าหมูหมี่กรอบ',      price:69,  emoji:'🍜', desc:'หมี่กรอบราดน้ำข้น หมูนุ่ม คะน้า', ingredients:['wheat noodle','pork','egg','soy sauce','oyster sauce','kale'], kcal:680, sodium_mg:1500, sugar_g:7 },
+  { id:22, name:'ผัดซีอิ๊วเส้นใหญ่หมู',     price:65,  emoji:'🍜', desc:'เส้นใหญ่ผัดซีอิ๊ว หมู ไข่ คะน้า', ingredients:['wheat noodle','pork','egg','soy sauce','kale'], kcal:720, sodium_mg:1450, sugar_g:9, seller:true },
+  { id:23, name:'ก๋วยเตี๋ยวเรือน้ำตก',      price:55,  emoji:'🍲', desc:'เส้นเล็กน้ำตกเข้มข้น หมู ผักบุ้ง', ingredients:['rice noodle','pork','pork blood','morning glory'], kcal:420, sodium_mg:1700, sugar_g:5 },
+  { id:24, name:'บะหมี่เกี๊ยวกุ้ง',         price:75,  emoji:'🍜', desc:'บะหมี่ไข่ เกี๊ยวกุ้ง หมูแดง', ingredients:['egg noodle','wheat','shrimp','pork'], kcal:560, sodium_mg:1300, sugar_g:6, seller:true },
+  { id:25, name:'เย็นตาโฟทะเลรวม',          price:79,  emoji:'🍲', desc:'น้ำเย็นตาโฟสีชมพู หมึก กุ้ง ลูกชิ้น เต้าหู้ยี้', ingredients:['rice noodle','squid','shrimp','fish ball','fermented tofu'], kcal:480, sodium_mg:1600, sugar_g:16 },
+  { id:26, name:'ข้าวผัดปูเนื้อล้วน',       price:120, emoji:'🦀', desc:'ข้าวผัดเนื้อปูก้อนโต ไข่ หอมเจียว', ingredients:['rice','crab','egg','garlic'], kcal:600, sodium_mg:1100, sugar_g:3 },
+  { id:27, name:'สุกี้น้ำทะเลรวม',          price:89,  emoji:'🦐', desc:'สุกี้น้ำ กุ้ง หมึก หอย วุ้นเส้น ไข่', ingredients:['shrimp','squid','mussel','egg','vermicelli','soy sauce'], kcal:430, sodium_mg:1550, sugar_g:8 },
+  { id:28, name:'ก๋วยเตี๋ยวต้มยำแห้งหมู',   price:55,  emoji:'🌶️', desc:'เส้นเล็กต้มยำแห้ง หมู ถั่วป่น พริก', ingredients:['rice noodle','peanut','pork','chili','lime'], kcal:470, sodium_mg:1400, sugar_g:11 },
+  ],
+  shopee: [
+  { id:31, name:'ส้มตำปูปลาร้า',           price:55,  emoji:'🥗', desc:'มะละกอ ปูดอง ปลาร้า ถั่วลิสง แซ่บนัว', ingredients:['papaya','crab','fermented fish','peanut','fish sauce','chili'], kcal:240, sodium_mg:1800, sugar_g:13, seller:true },
+  { id:32, name:'ลาบหมูคั่ว',              price:65,  emoji:'🌶️', desc:'หมูสับคั่ว ข้าวคั่ว น้ำปลา สะระแหน่', ingredients:['pork','fish sauce','chili','roasted rice','mint'], kcal:380, sodium_mg:1500, sugar_g:3 },
+  { id:33, name:'กุ้งแช่น้ำปลา',           price:139, emoji:'🦐', desc:'กุ้งสดแช่น้ำปลา กระเทียม พริกขี้หนู มะนาว', ingredients:['shrimp','fish sauce','garlic','chili','lime'], kcal:210, sodium_mg:1700, sugar_g:4, seller:true },
+  { id:34, name:'ยำทะเลรวม',               price:129, emoji:'🦑', desc:'กุ้ง หมึก หอยแมลงภู่ ยำรสแซ่บ', ingredients:['shrimp','squid','mussel','fish sauce','chili','lime'], kcal:260, sodium_mg:1650, sugar_g:9 },
+  { id:35, name:'หอยแครงลวก',              price:89,  emoji:'🦪', desc:'หอยแครงลวกสุก น้ำจิ้มซีฟู้ดรสเด็ด', ingredients:['blood cockle','seafood sauce','chili','garlic'], kcal:180, sodium_mg:1400, sugar_g:6 },
+  { id:36, name:'ต้มแซ่บกระดูกอ่อน',       price:99,  emoji:'🍲', desc:'ซี่โครงอ่อนต้มแซ่บ ตะไคร้ มะนาว', ingredients:['pork rib','fish sauce','chili','lemongrass','lime'], kcal:340, sodium_mg:1600, sugar_g:4 },
+  { id:37, name:'ปลานิลทอดน้ำปลา',         price:159, emoji:'🐟', desc:'ปลานิลทอดกรอบ ราดน้ำปลา กระเทียมเจียว', ingredients:['fish','fish sauce','garlic'], kcal:450, sodium_mg:1200, sugar_g:2 },
+  { id:38, name:'ข้าวเหนียว',              price:15,  emoji:'🍚', desc:'ข้าวเหนียวนึ่งร้อนๆ', ingredients:['sticky rice'], kcal:170, sodium_mg:5, sugar_g:0 },
+  ],
+};
 const FLAG_LABEL = { high_sodium:'โซเดียมสูง', watch_sodium:'ระวังโซเดียม', high_sugar:'น้ำตาลสูง', high_calorie:'แคลอรี่สูง', diabetes_caution:'ระวังเบาหวาน' };
 const DEFAULTS = { base:'https://thesis-backend-q3qm.onrender.com', key:'pk_live_grabfood_demo_001', consent:'', app:'', color:'' };
+const RESTS = {
+  grab:    { name:'ครัวสุขภาพดี', loc:'- สุขุมวิท 31', cover:1, photo:4 },
+  lineman: { name:'บะหมี่เกี๊ยว & ราดหน้า เรือทอง', loc:'- เยาวราช', cover:21, photo:23 },
+  shopee:  { name:'แซ่บเวอร์ ซีฟู้ด & ตำมั่ว', loc:'- บางน้ำจืด', cover:32, photo:31 },
+};
 const IMG = {
+  21:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Kuai-tiao_rat_na_mu.JPG/330px-Kuai-tiao_rat_na_mu.JPG',
+  22:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Pad_see_ew.jpg/330px-Pad_see_ew.jpg',
+  23:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Boat_noodles.jpg/330px-Boat_noodles.jpg',
+  31:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/2013_Tam_Lao.jpg/330px-2013_Tam_Lao.jpg',
+  32:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/LaoFood_LarbNeua.JPG/330px-LaoFood_LarbNeua.JPG',
+  38:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Lao_cuisine_ricebasket.jpg/330px-Lao_cuisine_ricebasket.jpg',
   1:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Phat_Thai_kung_Chang_Khien_street_stall.jpg/330px-Phat_Thai_kung_Chang_Khien_street_stall.jpg',
   2:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Basil_fried_crispy_pork_with_rice_-_Chiang_Mai_-_2017-07-11_%28002%29.jpg/330px-Basil_fried_crispy_pork_with_rice_-_Chiang_Mai_-_2017-07-11_%28002%29.jpg',
   3:'https://www.jmthaifood.com/wp-content/uploads/2020/01/%E0%B8%95%E0%B9%89%E0%B8%A1%E0%B8%A2%E0%B8%B3%E0%B8%81%E0%B8%B8%E0%B9%89%E0%B8%87-1.jpg',
@@ -239,9 +272,10 @@ const IMG = {
   12:'https://www.ofm.co.th/blog/wp-content/uploads/2025/02/%E0%B8%82%E0%B9%89%E0%B8%B2%E0%B8%A7%E0%B9%80%E0%B8%AB%E0%B8%99%E0%B8%B5%E0%B8%A2%E0%B8%A7%E0%B8%A1%E0%B8%B0%E0%B8%A1%E0%B9%88%E0%B8%A7%E0%B8%87.png',
 };
 
-let HEALTH = {}, cart = 0, cartTotal = 0, BRAND = 'grab';
+let HEALTH = {}, cart = 0, cartTotal = 0, BRAND = 'grab', MENU = MENUS.grab, REST = RESTS.grab;
 const $=(id)=>document.getElementById(id);
 const imgFor=(m)=>IMG[m.id]||('https://loremflickr.com/300/300/'+encodeURIComponent(m.name)+'?lock='+m.id);
+const imgById=(id)=>IMG[id]||('https://loremflickr.com/600/400/thai,food?lock='+id);
 function getCfg(){ try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem('mockfood_cfg')||'{}') }; } catch { return {...DEFAULTS}; } }
 function setCfg(c){ localStorage.setItem('mockfood_cfg', JSON.stringify(c)); }
 function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(window._tt); window._tt=setTimeout(()=>t.classList.remove('show'),1900); }
@@ -281,12 +315,12 @@ function ingreenHTML(){ return '<div class="ingreen" id="conn" onclick="onConnCl
 
 /* ===== GrabFood layout ===== */
 function layoutGrab(){
-  return '<div class="cover"><img src="'+imgFor(MENU[1])+'" referrerpolicy="no-referrer" onerror="this.style.display=\'none\'" />'+
+  return '<div class="cover"><img src="'+imgById(REST.cover)+'" referrerpolicy="no-referrer" onerror="this.style.display=\'none\'" />'+
     '<div class="topbar"><div class="cbtn dark"><iconify-icon icon="mdi:arrow-left" width="22"></iconify-icon></div>'+
     '<div class="cbtn dark" style="margin-left:auto"><iconify-icon icon="mdi:heart-outline" width="20"></iconify-icon></div>'+
     '<div class="cbtn dark" style="width:auto;padding:0 13px;gap:7px;border-radius:22px;font-size:13.5px;font-weight:700"><iconify-icon icon="mdi:motorbike" width="18"></iconify-icon> จัดส่ง <iconify-icon icon="mdi:chevron-down" width="16"></iconify-icon></div></div></div>'+
-    '<div class="g-rest"><img class="rphoto" src="'+imgFor(MENU[3])+'" referrerpolicy="no-referrer" /><div class="rinfo">'+
-      '<h1 id="rest-title">ครัวสุขภาพดี</h1><div class="loc">- สุขุมวิท 31</div>'+
+    '<div class="g-rest"><img class="rphoto" src="'+imgById(REST.photo)+'" referrerpolicy="no-referrer" /><div class="rinfo">'+
+      '<h1 id="rest-title">'+REST.name+'</h1><div class="loc">'+REST.loc+'</div>'+
       '<div class="rate"><iconify-icon icon="mdi:star"></iconify-icon> 4.8 <span class="n2">(2.1k+)</span></div>'+
       '<div class="deliv"><iconify-icon icon="mdi:motorbike"></iconify-icon> <span class="free">ฟรี</span> <s>฿15</s> · 20-30 นาที</div></div></div>'+
     '<div class="g-acts"><div class="g-pill primary"><iconify-icon icon="mdi:account-multiple-plus-outline"></iconify-icon> คำสั่งซื้อกลุ่ม</div>'+
@@ -315,11 +349,11 @@ function renderGrab(){
 
 /* ===== LINE MAN layout ===== */
 function layoutLineman(){
-  return '<div class="cover"><img src="'+imgFor(MENU[0])+'" referrerpolicy="no-referrer" onerror="this.style.display=\'none\'" />'+
+  return '<div class="cover"><img src="'+imgById(REST.cover)+'" referrerpolicy="no-referrer" onerror="this.style.display=\'none\'" />'+
     '<div class="topbar"><div class="cbtn light"><iconify-icon icon="mdi:chevron-left" width="24"></iconify-icon></div>'+
     '<div class="cbtn light" style="margin-left:auto"><iconify-icon icon="mdi:export-variant" width="20"></iconify-icon></div>'+
     '<div class="cbtn light"><iconify-icon icon="mdi:dots-vertical" width="20"></iconify-icon></div></div></div>'+
-    '<div class="l-rest"><div class="l-namerow"><h1 id="rest-title">ครัวสุขภาพดี (Healthy Kitchen) - ข้างธนาคารออมสิน</h1>'+
+    '<div class="l-rest"><div class="l-namerow"><h1 id="rest-title">'+REST.name+' '+REST.loc+'</h1>'+
       '<div class="l-nameic"><iconify-icon icon="mdi:chevron-right" width="20"></iconify-icon><iconify-icon icon="mdi:heart-outline" width="22"></iconify-icon></div></div>'+
       '<div class="l-meta"><span class="l-rate"><iconify-icon icon="mdi:star"></iconify-icon> 4.7 <span class="c">(453)</span> <iconify-icon icon="mdi:chevron-right" width="14" style="color:#bbb"></iconify-icon></span>'+
         '<span class="l-vip"><span class="l-vipbadge">VIP</span> Delivery <iconify-icon icon="mdi:chevron-down" width="14"></iconify-icon></span>'+
@@ -354,15 +388,15 @@ function renderLineman(){
 
 /* ===== Shopee Food layout ===== */
 function layoutShopee(){
-  return '<div class="cover"><img src="'+imgFor(MENU[1])+'" referrerpolicy="no-referrer" onerror="this.style.display=\'none\'" />'+
+  return '<div class="cover"><img src="'+imgById(REST.cover)+'" referrerpolicy="no-referrer" onerror="this.style.display=\'none\'" />'+
     '<div class="topbar"><div class="cbtn gray"><iconify-icon icon="mdi:arrow-left" width="22"></iconify-icon></div>'+
     '<div class="cbtn gray" style="margin-left:auto"><iconify-icon icon="mdi:magnify" width="20"></iconify-icon></div>'+
     '<div class="cbtn gray"><iconify-icon icon="mdi:heart-outline" width="20"></iconify-icon></div>'+
     '<div class="cbtn gray"><iconify-icon icon="mdi:export-variant" width="20"></iconify-icon></div></div>'+
     '<div class="s-foodie"><div class="fw">FOODIE<br>WEEK</div><div class="fc">โค้ดสูงสุด <span class="big">60%</span> + <span class="free">ส่งฟรี*</span></div></div></div>'+
     '<div class="s-grouppill"><div class="gp"><iconify-icon icon="mdi:account-multiple-plus-outline" width="18"></iconify-icon> คำสั่งซื้อกลุ่ม</div></div>'+
-    '<div class="s-rest"><div class="s-namerow"><h1 id="rest-title">ครัวสุขภาพดี (บางน้ำจืด)</h1><iconify-icon icon="mdi:chevron-right" width="22"></iconify-icon></div>'+
-      '<div class="s-cat">อาหารตามสั่ง</div>'+
+    '<div class="s-rest"><div class="s-namerow"><h1 id="rest-title">'+REST.name+' '+REST.loc+'</h1><iconify-icon icon="mdi:chevron-right" width="22"></iconify-icon></div>'+
+      '<div class="s-cat">ซีฟู้ด · ส้มตำ · อาหารอีสาน</div>'+
       '<div class="s-rate"><span class="stars"><iconify-icon icon="mdi:star"></iconify-icon><iconify-icon icon="mdi:star"></iconify-icon><iconify-icon icon="mdi:star"></iconify-icon><iconify-icon icon="mdi:star"></iconify-icon><iconify-icon icon="mdi:star-outline"></iconify-icon></span> 4.4 <span class="rv">(165 รีวิวร้านค้า)</span> <iconify-icon class="ch" icon="mdi:chevron-right" width="16"></iconify-icon></div>'+
       '<div class="s-deliv"><span class="mt"><iconify-icon icon="mdi:motorbike"></iconify-icon> มาถึงภายใน 29 นาที</span> | <span class="fee"><iconify-icon icon="mdi:truck-fast-outline"></iconify-icon> ฿22</span> <s>฿37</s> <span class="edit">แก้ไข <iconify-icon icon="mdi:chevron-right" width="14"></iconify-icon></span></div></div>'+
     '<div class="s-promohead"><iconify-icon class="pi" icon="mdi:ticket-percent"></iconify-icon><div class="t">โปรโมชั่นทั้งหมด</div><div class="all">ดูทั้งหมด <iconify-icon icon="mdi:chevron-right" width="16"></iconify-icon></div></div>'+
@@ -377,7 +411,7 @@ function layoutShopee(){
     '<div class="s-tabs"><div class="s-tab active" onclick="sScroll(0)">Flash Sale</div><div class="s-tab" onclick="sScroll(1)">สำหรับคุณ</div><div class="s-tab" onclick="sScroll(1)">เมนูเส้น ทั่วไทย*</div><div class="s-tab" onclick="sScroll(1)">อาหารตาม</div><iconify-icon icon="mdi:chevron-down" style="color:#888"></iconify-icon></div>'+
     '<div class="s-flashhead"><div class="fs"><iconify-icon icon="mdi:alarm"></iconify-icon> FLASH SALE</div><div class="more">ดูเพิ่ม <iconify-icon icon="mdi:chevron-right" width="16"></iconify-icon></div></div>'+
     '<div class="s-flash" id="s-flash"></div>'+
-    '<div class="s-foryouhead" id="s-foryou">สำหรับคุณ (10)</div><div class="s-grid" id="s-grid"></div>'+
+    '<div class="s-foryouhead" id="s-foryou">สำหรับคุณ ('+MENU.length+')</div><div class="s-grid" id="s-grid"></div>'+
     '<div class="cartbar"><span><iconify-icon icon="mdi:cart" style="vertical-align:-2px"></iconify-icon> ตะกร้า <span class="n" id="cart-n">0</span></span><span id="cart-total">฿0</span></div>';
 }
 window.sScroll=(i)=>{ document.querySelectorAll('.s-tab').forEach(t=>t.classList.remove('active')); const tabs=document.querySelectorAll('.s-tab'); if(tabs[i])tabs[i].classList.add('active');
@@ -399,7 +433,7 @@ function renderApp(){
   const c=getCfg();
   if(c.color && /^[0-9a-fA-F]{3,8}$/.test(c.color)) document.documentElement.style.setProperty('--brand','#'+c.color);
   if(c.app) document.title=c.app;
-  BRAND=detectBrand();
+  BRAND=detectBrand(); MENU=MENUS[BRAND]; REST=RESTS[BRAND];
   $('root').innerHTML = BRAND==='lineman' ? layoutLineman() : BRAND==='shopee' ? layoutShopee() : layoutGrab();
   bindHold(); renderMenu();
 }
