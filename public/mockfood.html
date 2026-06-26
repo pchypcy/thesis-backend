@@ -3,39 +3,40 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>MockFood</title>
+<title>Food Delivery</title>
 <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2/dist/iconify-icon.min.js"></script>
 <style>
+  :root { --brand: #00B14F; --ingreen: #2D8048; }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body { font-family: 'Segoe UI', system-ui, 'Sukhumvit Set', sans-serif; background: #DDE1E4; color: #1b1b1b; display: flex; justify-content: center; padding: 16px; }
   .app { width: 100%; max-width: 430px; background: #F4F5F7; border-radius: 30px; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,.18); position: relative; }
 
   /* ── app bar ── */
-  .appbar { background: #00B14F; color: #fff; padding: 16px 16px 14px; display: flex; align-items: center; gap: 12px; }
+  .appbar { background: var(--brand); color: #fff; padding: 16px 16px 14px; display: flex; align-items: center; gap: 12px; }
   .appbar .ic { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,.18); display: flex; align-items: center; justify-content: center; cursor: pointer; }
   .appbar .title { font-size: 17px; font-weight: 800; flex: 1; letter-spacing: -.2px; }
 
   /* ── hero / restaurant ── */
-  .hero { height: 130px; background: linear-gradient(135deg,#00B14F 0%,#0a8f45 60%,#0b7d3e 100%); position: relative; }
-  .hero .emojis { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 14px; font-size: 40px; opacity: .35; }
+  .hero { height: 130px; background: var(--brand); position: relative; }
+  .hero .emojis { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 14px; font-size: 40px; opacity: .32; }
   .promo { position: absolute; left: 14px; bottom: 12px; background: #FFD400; color: #5a3d00; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 8px; display: flex; align-items: center; gap: 5px; }
   .rest { background: #fff; margin: -22px 14px 0; border-radius: 18px; padding: 15px 16px; box-shadow: 0 8px 24px rgba(0,0,0,.08); position: relative; }
   .rest h1 { font-size: 20px; font-weight: 800; letter-spacing: -.3px; user-select: none; }
   .rest .meta { display: flex; align-items: center; gap: 6px; margin-top: 7px; font-size: 12.5px; color: #555; flex-wrap: wrap; }
   .rest .dot { color: #ccc; }
-  .rest .star { color: #00B14F; font-weight: 800; display: inline-flex; align-items: center; gap: 3px; }
+  .rest .star { color: var(--brand); font-weight: 800; display: inline-flex; align-items: center; gap: 3px; }
   .rest .cats { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
   .rest .cat { font-size: 11px; background: #F1F3F2; color: #666; padding: 3px 9px; border-radius: 7px; }
 
-  /* ── InGreen connection strip ── */
+  /* ── InGreen connection strip (คงสี InGreen เสมอ ไม่ตามแบรนด์แอป) ── */
   .ingreen { margin: 12px 14px 0; border-radius: 14px; padding: 12px 13px; display: flex; align-items: center; gap: 10px; cursor: pointer;
              background: #F4FBEE; border: 1.5px solid #CDE9B6; }
   .ingreen.on { background: linear-gradient(120deg,#EAF7E0,#F4FBEE); border-color: #8DD06A; }
-  .ingreen .badge { width: 38px; height: 38px; border-radius: 11px; background: #00B14F; display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; }
+  .ingreen .badge { width: 38px; height: 38px; border-radius: 11px; background: var(--ingreen); display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; }
   .ingreen .txt { flex: 1; min-width: 0; }
   .ingreen .t1 { font-size: 13px; font-weight: 800; color: #1B5E37; display: flex; align-items: center; gap: 5px; }
   .ingreen .t2 { font-size: 11px; color: #6a8a5a; margin-top: 2px; line-height: 1.4; }
-  .ingreen .cta { font-size: 12px; font-weight: 800; color: #fff; background: #00B14F; padding: 7px 13px; border-radius: 10px; flex-shrink: 0; }
+  .ingreen .cta { font-size: 12px; font-weight: 800; color: #fff; background: var(--ingreen); padding: 7px 13px; border-radius: 10px; flex-shrink: 0; }
 
   .banner { margin: 12px 14px 0; background: #FCEBEB; color: #A32D2D; border-radius: 12px; padding: 11px 13px; font-size: 12px; display: none; align-items: center; gap: 8px; line-height: 1.4; }
   .banner.show { display: flex; }
@@ -54,7 +55,7 @@
   .price { font-size: 14px; color: #1b1b1b; font-weight: 800; margin-top: 7px; }
   .thumb-wrap { position: relative; flex-shrink: 0; }
   .thumb { width: 72px; height: 72px; border-radius: 13px; background: #F1F3F2; display: flex; align-items: center; justify-content: center; font-size: 36px; }
-  .add { position: absolute; right: -6px; bottom: -6px; width: 28px; height: 28px; border-radius: 9px; background: #fff; border: 1.5px solid #e3e3e3; color: #00B14F; font-size: 20px; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,.1); cursor: pointer; }
+  .add { position: absolute; right: -6px; bottom: -6px; width: 28px; height: 28px; border-radius: 9px; background: #fff; border: 1.5px solid #e3e3e3; color: var(--brand); font-size: 20px; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,.1); cursor: pointer; }
   .gscore { position: absolute; left: -4px; top: -6px; min-width: 30px; height: 22px; padding: 0 6px; border-radius: 11px; color: #fff; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 2px; box-shadow: 0 2px 6px rgba(0,0,0,.15); }
   .alert { display: flex; align-items: center; gap: 7px; border-radius: 9px; padding: 7px 9px; margin-top: 8px; font-size: 11.5px; line-height: 1.35; }
   .alert.bad { background: #FCEBEB; color: #A32D2D; }
@@ -63,25 +64,25 @@
   .flags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
   .flag { font-size: 10px; background: #F1F3F2; color: #777; padding: 2px 8px; border-radius: 7px; }
 
-  /* ── modal (connect / advanced) ── */
+  /* ── modal ── */
   .overlay { position: fixed; inset: 0; background: rgba(20,30,15,.5); display: none; align-items: flex-end; justify-content: center; z-index: 40; }
   .overlay.show { display: flex; }
   .sheet { background: #fff; width: 100%; max-width: 430px; border-radius: 24px 24px 0 0; padding: 20px 20px 26px; }
   .sheet .grip { width: 42px; height: 4px; border-radius: 3px; background: #ddd; margin: 0 auto 16px; }
   .sheet .mhead { display: flex; align-items: center; gap: 11px; margin-bottom: 6px; }
-  .sheet .mlogo { width: 46px; height: 46px; border-radius: 12px; background: #00B14F; display: flex; align-items: center; justify-content: center; color: #fff; }
+  .sheet .mlogo { width: 46px; height: 46px; border-radius: 12px; background: var(--ingreen); display: flex; align-items: center; justify-content: center; color: #fff; }
   .sheet h2 { font-size: 17px; font-weight: 800; }
   .sheet .msub { font-size: 12px; color: #888; margin-top: 1px; }
   .sheet p.desc { font-size: 13px; color: #555; line-height: 1.55; margin: 14px 0 6px; }
   .sheet label { display: block; font-size: 11px; color: #888; margin: 12px 0 4px; font-weight: 700; }
   .sheet input { width: 100%; padding: 13px 14px; border-radius: 13px; border: 1.5px solid #E3E3E3; background: #FAFAFA; font-size: 14px; font-family: inherit; }
-  .sheet input:focus { outline: none; border-color: #00B14F; background: #fff; }
+  .sheet input:focus { outline: none; border-color: var(--ingreen); background: #fff; }
   .hint { font-size: 11.5px; color: #8a8a8a; margin-top: 8px; line-height: 1.5; display: flex; gap: 6px; align-items: flex-start; }
   .hint b { color: #00813a; }
   .mbtns { display: flex; gap: 10px; margin-top: 20px; }
   .mbtns button { flex: 1; padding: 14px; border: none; border-radius: 14px; font-weight: 800; font-size: 14px; cursor: pointer; font-family: inherit; }
   .b-cancel { background: #fff; color: #888; border: 1.5px solid #ddd !important; flex: 1; }
-  .b-go { background: #00B14F; color: #fff; flex: 2; }
+  .b-go { background: var(--ingreen); color: #fff; flex: 2; }
   .adv-fields { display: none; }
   .adv-fields.show { display: block; }
 
@@ -93,7 +94,7 @@
 <div class="app">
   <div class="appbar">
     <div class="ic"><iconify-icon icon="mdi:arrow-left" width="20"></iconify-icon></div>
-    <div class="title">ครัวรักษ์โลก</div>
+    <div class="title" id="appbar-title">Food Delivery</div>
     <div class="ic"><iconify-icon icon="mdi:magnify" width="20"></iconify-icon></div>
     <div class="ic"><iconify-icon icon="mdi:cart-outline" width="20"></iconify-icon></div>
   </div>
@@ -130,7 +131,7 @@
   <div class="menu" id="menu"></div>
 </div>
 
-<!-- ── Connect InGreen modal ── -->
+<!-- Connect InGreen modal -->
 <div class="overlay" id="connect-modal">
   <div class="sheet">
     <div class="grip"></div>
@@ -142,8 +143,7 @@
     <label>รหัสเชื่อมต่อ</label>
     <input id="in-consent" placeholder="วางรหัสที่นี่" autocomplete="off" />
     <div class="hint"><iconify-icon icon="mdi:information-outline" style="margin-top:1px"></iconify-icon>
-      <span>วิธีรับรหัส: เปิดแอป <b>InGreen</b> → ตั้งค่า → การเชื่อมต่อภายนอก → เชื่อม <b>“MockFood”</b> → คัดลอกรหัส</span></div>
-    <!-- advanced (ซ่อน — กดค้างที่ชื่อร้านเพื่อแสดง) -->
+      <span>วิธีรับรหัส: เปิดแอป <b>InGreen</b> → ตั้งค่า → การเชื่อมต่อภายนอก → เชื่อมแอปนี้ → คัดลอกรหัส</span></div>
     <div class="adv-fields" id="adv">
       <label>API base URL (สำหรับนักพัฒนา)</label>
       <input id="in-base" placeholder="https://thesis-backend-q3qm.onrender.com" />
@@ -169,27 +169,32 @@ const MENU = [
 ];
 const FLAG_LABEL = { high_sodium:'โซเดียมสูง', watch_sodium:'ระวังโซเดียม', high_sugar:'น้ำตาลสูง', high_calorie:'แคลอรี่สูง', diabetes_caution:'ระวังเบาหวาน' };
 const REC = { avoid:{cls:'avoid'}, recommend:{cls:'recommend'}, ok:{cls:'ok'} };
-const DEFAULTS = { base:'https://thesis-backend-q3qm.onrender.com', key:'pk_live_mockfood_demo_001', consent:'' };
+const DEFAULTS = { base:'https://thesis-backend-q3qm.onrender.com', key:'pk_live_grabfood_demo_001', consent:'', app:'', color:'' };
 
 const $=(id)=>document.getElementById(id);
 function getCfg(){ try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem('mockfood_cfg')||'{}') }; } catch { return {...DEFAULTS}; } }
 function setCfg(c){ localStorage.setItem('mockfood_cfg', JSON.stringify(c)); }
 
+function applyBrand(){
+  const c=getCfg();
+  if(c.color && /^[0-9a-fA-F]{3,8}$/.test(c.color)) document.documentElement.style.setProperty('--brand','#'+c.color);
+  if(c.app){ $('appbar-title').textContent=c.app; document.title=c.app; }
+}
+
 function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(window._tt); window._tt=setTimeout(()=>t.classList.remove('show'),1900); }
 
-/* ── connect modal ── */
 function onConnClick(){ getCfg().consent ? getRecs() : openConnect(); }
 function openConnect(){ const c=getCfg(); $('in-consent').value=c.consent||''; $('in-base').value=c.base; $('in-key').value=c.key; $('connect-modal').classList.add('show'); }
 function closeConnect(){ $('connect-modal').classList.remove('show'); }
 function doConnect(){
   const consent=$('in-consent').value.trim();
   if(!consent){ toast('กรุณาใส่รหัสเชื่อมต่อ'); return; }
-  setCfg({ base:($('in-base').value.trim()||DEFAULTS.base).replace(/\/$/,''), key:$('in-key').value.trim()||DEFAULTS.key, consent });
+  const cur=getCfg();
+  setCfg({ ...cur, base:($('in-base').value.trim()||DEFAULTS.base).replace(/\/$/,''), key:$('in-key').value.trim()||DEFAULTS.key, consent });
   closeConnect(); toast('กำลังเชื่อมต่อ…'); getRecs();
 }
 /* กดค้างที่ชื่อร้าน → เผยช่องตั้งค่าขั้นสูง (สำหรับนักพัฒนา/เดโม) */
-let _hold;
-const rt=$('rest-title');
+let _hold; const rt=$('rest-title');
 const holdStart=()=>{ _hold=setTimeout(()=>{ openConnect(); $('adv').classList.add('show'); toast('โหมดนักพัฒนา'); },700); };
 const holdEnd=()=>clearTimeout(_hold);
 rt.addEventListener('mousedown',holdStart); rt.addEventListener('touchstart',holdStart,{passive:true});
@@ -199,7 +204,7 @@ function setConn(connected, subject){
   const el=$('conn');
   if(connected){
     el.classList.add('on');
-    $('conn-t1').innerHTML='<iconify-icon icon="mdi:check-decagram" style="color:#00B14F"></iconify-icon> เชื่อม InGreen แล้ว';
+    $('conn-t1').innerHTML='<iconify-icon icon="mdi:check-decagram" style="color:#2D8048"></iconify-icon> เชื่อม InGreen แล้ว';
     $('conn-t2').textContent='เมนูถูกปรับให้เหมาะกับคุณแล้ว';
     $('conn-cta').textContent='รีเฟรช';
   } else {
@@ -260,21 +265,29 @@ async function getRecs(){
   } catch(err){ toast('เชื่อมต่อไม่สำเร็จ ลองใหม่อีกครั้ง'); console.error(err); }
 }
 
-// เปิดมาจากแอป InGreen แบบ redirect (…/mockfood?ct=<token>) → เชื่อมอัตโนมัติ ไม่ต้องกรอกรหัส
+// เปิดมาจากแอป InGreen แบบ redirect (…/mockfood?ct=&key=&app=&color=) → เชื่อม + ธีมตามแบรนด์ อัตโนมัติ
 (function initFromUrl(){
   try {
-    const p = new URLSearchParams(location.search);
-    const ct = p.get('ct');
-    if (ct) {
-      const cur = getCfg();
-      setCfg({ base:(p.get('api')||cur.base).replace(/\/$/,''), key:p.get('key')||cur.key, consent:ct });
-      history.replaceState(null, '', location.pathname); // ลบ token ออกจาก URL bar เพื่อความเป็นส่วนตัว
+    const p=new URLSearchParams(location.search);
+    const ct=p.get('ct');
+    if(ct){
+      const cur=getCfg();
+      setCfg({
+        ...cur,
+        base:(p.get('api')||cur.base).replace(/\/$/,''),
+        key:p.get('key')||cur.key,
+        consent:ct,
+        app:p.get('app')||cur.app||'',
+        color:p.get('color')||cur.color||'',
+      });
+      history.replaceState(null,'',location.pathname); // ลบพารามิเตอร์ออกจาก URL bar (ความเป็นส่วนตัว)
     }
   } catch {}
 })();
 
+applyBrand();
 renderMenu(null);
-if(getCfg().consent) getRecs();   // เชื่อมอยู่แล้ว / มี token จาก URL → โหลดคำแนะนำเลย
+if(getCfg().consent) getRecs();   // มี token (จาก URL หรือเคยเชื่อม) → โหลดคำแนะนำเลย
 </script>
 </body>
 </html>

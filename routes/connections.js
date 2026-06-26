@@ -17,31 +17,55 @@ const ConsentGrant = require('../models/ConsentGrant');
 const { verifyChain } = require('../utils/auditChain');
 const { SCOPES }   = require('../utils/greenProfileSchema');
 
-// ── seed partner ตัวอย่าง (idempotent — ไม่ทับของเดิม) ──────────────────────
-// ใช้ $setOnInsert → ถ้ามี slug นี้อยู่แล้วจะไม่แตะข้อมูล
+// ── seed partner ตัวอย่าง (แอปสั่งอาหารเดลิเวอรียอดนิยม — เดโมการเชื่อม Green Profile) ──
 const DEMO_PARTNERS = [
     {
-        slug: 'mockfood', name: 'MockFood',
-        api_key: 'pk_live_mockfood_demo_001',
-        brand_color: '#00B14F', logo_icon: 'ti-motorbike',
-        description: 'แอปสั่งอาหารจำลอง (ตัวแทน Grab / LINE MAN ในอนาคต)',
+        slug: 'grabfood', name: 'GrabFood',
+        api_key: 'pk_live_grabfood_demo_001',
+        brand_color: '#00B14F', logo_icon: 'mdi:motorbike',
+        description: 'สั่งอาหารเดลิเวอรี',
         allowed_scopes: ['allergy', 'health', 'sustainability'],
     },
     {
-        slug: 'greeneats', name: 'GreenEats',
-        api_key: 'pk_live_greeneats_demo_002',
-        brand_color: '#2D8048', logo_icon: 'ti-leaf',
-        description: 'แพลตฟอร์มอาหารรักษ์โลก',
-        allowed_scopes: ['allergy', 'sustainability'],
+        slug: 'lineman', name: 'LINE MAN',
+        api_key: 'pk_live_lineman_demo_002',
+        brand_color: '#06C755', logo_icon: 'mdi:moped',
+        description: 'สั่งอาหาร · ส่งของ · เดลิเวอรี',
+        allowed_scopes: ['allergy', 'health', 'sustainability'],
+    },
+    {
+        slug: 'shopeefood', name: 'Shopee Food',
+        api_key: 'pk_live_shopeefood_demo_003',
+        brand_color: '#EE4D2D', logo_icon: 'mdi:storefront',
+        description: 'สั่งอาหารจาก Shopee',
+        allowed_scopes: ['allergy', 'health', 'sustainability'],
+    },
+    {
+        slug: 'foodpanda', name: 'foodpanda',
+        api_key: 'pk_live_foodpanda_demo_004',
+        brand_color: '#D70F64', logo_icon: 'mdi:silverware-fork-knife',
+        description: 'แอปสั่งอาหารเดลิเวอรี',
+        allowed_scopes: ['allergy', 'health', 'sustainability'],
     },
 ];
 
 let seeded = false;
 async function ensureDemoPartners() {
     if (seeded) return;
+    const slugs = DEMO_PARTNERS.map(p => p.slug);
     for (const p of DEMO_PARTNERS) {
-        await PartnerApp.updateOne({ slug: p.slug }, { $setOnInsert: p }, { upsert: true });
+        // $set → อัปเดตชื่อ/สี/ไอคอน/คำอธิบายให้ทันสมัย; api_key คงเดิมถ้ามีอยู่แล้ว (กัน token ที่ผูกไว้พัง)
+        await PartnerApp.updateOne(
+            { slug: p.slug },
+            {
+                $set: { name: p.name, brand_color: p.brand_color, logo_icon: p.logo_icon, description: p.description, allowed_scopes: p.allowed_scopes, status: 'active' },
+                $setOnInsert: { api_key: p.api_key },
+            },
+            { upsert: true },
+        );
     }
+    // ปิดพาร์ตเนอร์เดโมเก่าที่ไม่ใช้แล้ว (mockfood, greeneats)
+    await PartnerApp.updateMany({ slug: { $nin: slugs }, status: 'active' }, { $set: { status: 'suspended' } });
     seeded = true;
 }
 
@@ -67,6 +91,7 @@ router.get('/', verifyToken, async (req, res) => {
             const g = bySlug[p.slug];
             return {
                 slug: p.slug, name: p.name,
+                api_key: p.api_key,   // public key (pk_live_) — แอป InGreen ส่งต่อให้แอป partner ตอน redirect
                 brand_color: p.brand_color, logo_icon: p.logo_icon,
                 description: p.description, allowed_scopes: p.allowed_scopes,
                 status: g ? g.status : 'available',
