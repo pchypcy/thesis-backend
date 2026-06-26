@@ -40,13 +40,7 @@ const DEMO_PARTNERS = [
         description: 'สั่งอาหารจาก Shopee',
         allowed_scopes: ['allergy', 'health'],
     },
-    {
-        slug: 'foodpanda', name: 'foodpanda',
-        api_key: 'pk_live_foodpanda_demo_004',
-        brand_color: '#D70F64', logo_icon: 'mdi:silverware-fork-knife',
-        description: 'แอปสั่งอาหารเดลิเวอรี',
-        allowed_scopes: ['allergy', 'health'],
-    },
+    // foodpanda เลิกให้บริการในไทยแล้ว — เอาออก
 ];
 
 let seeded = false;
@@ -64,7 +58,7 @@ async function ensureDemoPartners() {
             { upsert: true },
         );
     }
-    // ปิดพาร์ตเนอร์เดโมเก่าที่ไม่ใช้แล้ว (mockfood, greeneats)
+    // ปิดพาร์ตเนอร์เดโมเก่าที่ไม่ใช้แล้ว (mockfood, greeneats, foodpanda)
     await PartnerApp.updateMany({ slug: { $nin: slugs }, status: 'active' }, { $set: { status: 'suspended' } });
     seeded = true;
 }
