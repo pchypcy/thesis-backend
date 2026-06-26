@@ -27,6 +27,22 @@
   .galert.bad { color: #C62828; } .galert.good { color: #1f7a3a; }
   .gflags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
   .gflag { font-size: 9.5px; background: #FFF3E0; color: #B26A00; padding: 2px 7px; border-radius: 6px; font-weight: 700; }
+  /* จุดสุขภาพมุมรูป (subtle ไม่แดงเถือก) */
+  .hdot { position: absolute; top: 7px; right: 7px; width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 0 2px rgba(255,255,255,.95); z-index: 3; }
+  .hdot.red { background: #E53935; animation: hblink 1.1s infinite; }
+  .hdot.amber { background: #F0A500; } .hdot.green { background: #16B36B; }
+  .galert.bad { color: #9E4A4A !important; } .galert.bad .ldot { width:7px; height:7px; border-radius:50%; background:#E53935; animation:hblink 1.1s infinite; flex-shrink:0; margin-top:3px; }
+  @keyframes hblink { 0%,100%{opacity:1} 50%{opacity:.25} }
+  /* แถบ filter ซ่อนเมนูที่แพ้ */
+  .filterbar { margin: 12px 14px 0; display: none; align-items: center; gap: 10px; background: #fff; border: 1px solid #eee; border-radius: 14px; padding: 11px 14px; box-shadow: 0 2px 8px rgba(0,0,0,.05); }
+  .filterbar.show { display: flex; }
+  .filterbar .fb-l { flex: 1; display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 700; color: #555; }
+  .fb-dot { width: 9px; height: 9px; border-radius: 50%; background: #E53935; animation: hblink 1.1s infinite; }
+  .fb-toggle { display: flex; align-items: center; gap: 9px; cursor: pointer; font-size: 12.5px; font-weight: 700; color: #777; }
+  .sw { width: 42px; height: 24px; border-radius: 13px; background: #ccc; position: relative; transition: background .2s; flex-shrink: 0; }
+  .sw.on { background: var(--brand); }
+  .sw .knob { position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: left .2s; box-shadow: 0 1px 3px rgba(0,0,0,.3); }
+  .sw.on .knob { left: 21px; }
 
   /* shared InGreen strip */
   .ingreen { margin: 14px 14px 0; border-radius: 16px; padding: 13px; display: flex; align-items: center; gap: 11px; cursor: pointer; background: #F4FBEE; border: 1.5px solid #CDE9B6; }
@@ -284,14 +300,23 @@ function addToCart(m){ cart++; cartTotal+=m.price; const n=$('cart-n'),t=$('cart
 window.ADD=(id)=>{ const m=MENU.find(x=>x.id===id); if(m) addToCart(m); };
 window.imgFallback=(el,emoji)=>{ el.outerHTML='<div class="'+el.className+' emoji">'+emoji+'</div>'; };
 function thumbImg(m,cls){ return '<img class="'+cls+'" src="'+imgFor(m)+'" referrerpolicy="no-referrer" loading="lazy" onerror="imgFallback(this,\''+m.emoji+'\')" />'; }
+// จุดเล็กๆ มุมรูป (ไม่แดงเถือก) — แดงกะพริบ=แพ้, เหลือง=ระวัง, เขียว=เหมาะ
 function healthBadge(r){ if(!r) return '';
-  if(!r.safe) return '<div class="hbadge" style="display:flex;background:#E23744"><iconify-icon icon="mdi:close-circle"></iconify-icon>แพ้</div>';
-  if((r.health_flags||[]).length>0) return '<div class="hbadge" style="display:flex;background:#E89938"><iconify-icon icon="mdi:alert"></iconify-icon>ระวัง</div>';
-  return '<div class="hbadge" style="display:flex;background:#11A85A"><iconify-icon icon="mdi:check"></iconify-icon>เหมาะ</div>'; }
+  if(!r.safe) return '<div class="hdot red"></div>';
+  if((r.health_flags||[]).length>0) return '<div class="hdot amber"></div>';
+  return '<div class="hdot green"></div>'; }
 function healthLine(r){ if(!r) return '';
-  if(!r.safe) return '<div class="galert bad"><iconify-icon icon="mdi:alert"></iconify-icon><span>มี '+r.hits.join(', ')+' — คุณแพ้'+(r.max_severity?(' ('+sevTH(r.max_severity)+')'):'')+'</span></div>';
+  if(!r.safe) return '<div class="galert bad"><span class="ldot"></span>แพ้: '+r.hits.join(', ')+(r.max_severity?(' ('+sevTH(r.max_severity)+')'):'')+'</div>';
   if((r.health_flags||[]).length>0) return '<div class="gflags">'+r.health_flags.map(f=>'<span class="gflag">'+(FLAG_LABEL[f]||f)+'</span>').join('')+'</div>';
-  return '<div class="galert good"><iconify-icon icon="mdi:heart-check"></iconify-icon><span>เหมาะกับสุขภาพคุณ</span></div>'; }
+  return '<div class="galert good"><iconify-icon icon="mdi:check-circle"></iconify-icon> เหมาะกับคุณ</div>'; }
+// ── ตัวกรอง "ซ่อนเมนูที่แพ้" ──
+let hideAllergic = false;
+function menuList(){ return hideAllergic ? MENU.filter(m=>!(HEALTH[m.name] && HEALTH[m.name].safe===false)) : MENU; }
+function updateFilterBar(){ const bar=$('filterbar'); if(!bar) return;
+  const n=MENU.filter(m=>HEALTH[m.name] && HEALTH[m.name].safe===false).length;
+  if(n>0){ bar.classList.add('show'); $('fb-count').textContent='พบ '+n+' เมนูที่คุณแพ้'; } else { bar.classList.remove('show'); hideAllergic=false; }
+  const sw=$('fb-sw'); if(sw) sw.classList.toggle('on', hideAllergic); }
+function toggleHideAllergic(){ hideAllergic=!hideAllergic; const sw=$('fb-sw'); if(sw) sw.classList.toggle('on',hideAllergic); renderMenu(); }
 
 /* ── connect ── */
 function onConnClick(){ getCfg().consent ? getRecs() : openConnect(); }
@@ -311,7 +336,9 @@ function banner(msg){ const b=$('banner'); if(!b) return; if(!msg){ b.classList.
 function ingreenHTML(){ return '<div class="ingreen" id="conn" onclick="onConnClick()"><div class="ibadge"><iconify-icon icon="mdi:heart-pulse" width="22"></iconify-icon></div>'+
   '<div class="itxt"><div class="it1" id="conn-t1"><iconify-icon icon="mdi:link-variant"></iconify-icon> เชื่อมบัญชี InGreen</div>'+
   '<div class="it2" id="conn-t2">เตือนเมนูที่คุณแพ้ และแนะนำเมนูที่ดีต่อสุขภาพ เฉพาะคุณ</div></div><div class="icta" id="conn-cta">เชื่อม</div></div>'+
-  '<div class="banner" id="banner"><iconify-icon icon="mdi:lock-alert"></iconify-icon><span id="banner-text"></span></div>'; }
+  '<div class="banner" id="banner"><iconify-icon icon="mdi:lock-alert"></iconify-icon><span id="banner-text"></span></div>'+
+  '<div class="filterbar" id="filterbar"><div class="fb-l"><span class="fb-dot"></span><span id="fb-count">มีเมนูที่คุณแพ้</span></div>'+
+  '<div class="fb-toggle" onclick="toggleHideAllergic()"><span>ซ่อนเมนูที่แพ้</span><div class="sw" id="fb-sw"><div class="knob"></div></div></div></div>'; }
 
 /* ===== GrabFood layout ===== */
 function layoutGrab(){
@@ -342,7 +369,7 @@ function renderGrab(){
     return '<div class="g-ocard"><div class="g-otw">'+healthBadge(r)+thumbImg(m,'g-othumb')+'</div><div class="g-oinfo"><div class="g-oname">'+m.name+'</div>'+(r?healthLine(r):'')+
       '<div class="g-oprice">฿'+m.price+' <s>฿'+old+'</s> <iconify-icon class="tag" icon="mdi:tag"></iconify-icon></div></div>'+
       '<div class="add" style="position:absolute;right:11px;bottom:11px;width:30px;height:30px;border-radius:50%;font-size:21px" onclick="ADD('+m.id+')">+</div></div>'; }).join('');
-  $('grid').innerHTML = MENU.map(m=>{ const r=HEALTH[m.name]; const seller=(m.seller && !(r&&!r.safe))?'<div class="g-seller">ยอดสั่งเยอะที่สุด</div>':'';
+  $('grid').innerHTML = menuList().map(m=>{ const r=HEALTH[m.name]; const seller=(m.seller && !(r&&!r.safe))?'<div class="g-seller">ยอดสั่งเยอะที่สุด</div>':'';
     return '<div class="g-card"><div class="g-tw">'+seller+healthBadge(r)+thumbImg(m,'g-thumb')+'<div class="add" onclick="ADD('+m.id+')">+</div></div>'+
       '<div class="g-body"><div class="g-name">'+m.name+'</div><div class="g-price">฿'+m.price+'</div>'+(r?healthLine(r):'')+'</div></div>'; }).join('');
 }
@@ -379,7 +406,7 @@ function lmRow(m){ const r=HEALTH[m.name];
   return '<div class="l-row"><div class="l-rinfo"><div class="l-rname">'+m.name+'</div><div class="l-rdesc">'+m.desc+'</div><div class="l-rprice">฿'+m.price+'</div>'+(r?healthLine(r):'')+'</div>'+
     '<div class="l-rtw">'+healthBadge(r)+thumbImg(m,'l-rthumb')+'<div class="add" onclick="ADD('+m.id+')">+</div></div></div>'; }
 function renderLineman(){
-  const reorder=[MENU[0],MENU[3]], popular=MENU.filter(m=>m.seller), rec=MENU;
+  const reorder=[MENU[0],MENU[3]], popular=MENU.filter(m=>m.seller), rec=menuList();
   $('lmenu').innerHTML =
     '<div class="l-sec" id="lm-reorder">สั่งอีกครั้ง</div><div class="l-list">'+reorder.map(lmRow).join('')+'</div>'+
     '<div class="l-sec" id="lm-popular">เมนูดัง คนสั่งเยอะ</div><div class="l-list">'+popular.map(lmRow).join('')+'</div>'+
@@ -421,7 +448,7 @@ function renderShopee(){
     return '<div class="s-fcard"><div class="s-ftw"><div class="s-fdisc">-50%</div>'+healthBadge(r)+thumbImg(m,'s-fthumb')+'</div>'+
       '<div class="s-finfo"><div class="s-fname">[5 วันเท่านั้น 1 แถม 1] '+m.name+'</div><div class="s-fsold">'+(2+m.id)+' ขายแล้ว · '+m.id+' ถูกใจ</div>'+(r?healthLine(r):'')+
       '<div class="s-fbottom"><div class="s-fprice">฿'+m.price+'<s>฿'+old+'</s></div><div class="s-notify">เตือนฉัน</div></div></div></div>'; }).join('');
-  $('s-grid').innerHTML = MENU.map(m=>{ const r=HEALTH[m.name]; const seller=(m.seller && !(r&&!r.safe))?'<div class="seller">สั่งเยอะที่สุด</div>':'';
+  $('s-grid').innerHTML = menuList().map(m=>{ const r=HEALTH[m.name]; const seller=(m.seller && !(r&&!r.safe))?'<div class="seller">สั่งเยอะที่สุด</div>':'';
     return '<div class="s-card"><div class="s-tw">'+seller+healthBadge(r)+thumbImg(m,'s-thumb')+'<div class="add" onclick="ADD('+m.id+')">+</div></div>'+
       '<div class="s-body"><div class="s-name">'+m.name+'</div><div class="s-sold">'+(10+m.id)+' ขายแล้ว</div><div class="s-price">฿'+m.price+'</div>'+(r?healthLine(r):'')+'</div></div>'; }).join('');
 }
@@ -444,11 +471,11 @@ async function getRecs(){
     const res=await fetch(c.base+'/api/partner/v1/green-check',{ method:'POST',
       headers:{ 'Content-Type':'application/json','Authorization':'Bearer '+c.key,'X-Consent-Token':c.consent,'ngrok-skip-browser-warning':'true' },
       body: JSON.stringify({ items: MENU.map(m=>({ name:m.name, ingredients:m.ingredients, kcal:m.kcal, sodium_mg:m.sodium_mg, sugar_g:m.sugar_g })) }), });
-    if(res.status===403){ setConn(false); HEALTH={}; renderMenu(); banner('การเชื่อมต่อถูกยกเลิก — ไม่มีคำแนะนำส่วนตัว'); toast('การเชื่อมต่อถูกยกเลิก'); return; }
+    if(res.status===403){ setConn(false); HEALTH={}; renderMenu(); updateFilterBar(); banner('การเชื่อมต่อถูกยกเลิก — ไม่มีคำแนะนำส่วนตัว'); toast('การเชื่อมต่อถูกยกเลิก'); return; }
     if(!res.ok){ const e=await res.json().catch(()=>({})); toast('เชื่อมต่อไม่สำเร็จ: '+(e.message||e.error||res.status)); return; }
     const data=await res.json();
     HEALTH={}; (data.results||[]).forEach(r=>{ HEALTH[r.name]={ safe:r.allergy.safe, hits:r.allergy.hits, max_severity:r.allergy.max_severity, health_flags:r.health_flags }; });
-    setConn(true); renderMenu(); toast('ปรับเมนูให้เหมาะกับคุณแล้ว ✓');
+    setConn(true); renderMenu(); updateFilterBar(); toast('ปรับเมนูให้เหมาะกับคุณแล้ว ✓');
   } catch(err){ toast('เชื่อมต่อไม่สำเร็จ ลองใหม่อีกครั้ง'); console.error(err); }
 }
 
