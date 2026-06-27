@@ -85,6 +85,9 @@ app.use('/api/partner',     partnerApiRoute);     // ★ Green Profile API: endp
 //   ให้แอป InGreen redirect มาพร้อม token → เชื่อมอัตโนมัติ ไม่ต้องกรอกรหัสจับคู่
 app.get('/mockfood', (req, res) => res.sendFile(path.join(__dirname, 'public', 'mockfood.html')));
 
+// ★ เสิร์ฟรูปเมนูที่ self-host (กันลิงก์ภายนอกหมดอายุ/โดนกันลิงก์ตอน demo)
+app.use('/menu-img', express.static(path.join(__dirname, 'public', 'menu-img')));
+
 app.get('/', (req, res) => res.send('InGreen Backend is Running! 🌿'));
 
 const PORT = process.env.PORT || 5001;
