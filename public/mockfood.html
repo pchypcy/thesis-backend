@@ -113,10 +113,6 @@
   .l-vcoin { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; }
   .l-vt1 { font-size: 13.5px; font-weight: 800; } .l-vt2 { font-size: 11px; color: #8aa; margin-top: 1px; color: #2BC36B; font-weight: 700; }
   .l-vch .vr { display: flex; align-items: center; padding: 0 14px; font-size: 13px; font-weight: 800; color: var(--brand); border-left: 1px dashed #cfe9d8; }
-  .l-gov { margin: 14px 16px 0; background: #19438F; color: #fff; border-radius: 14px; padding: 13px 14px; display: flex; align-items: center; gap: 11px; }
-  .l-gov .gl { width: 40px; height: 40px; border-radius: 8px; background: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 9px; font-weight: 900; color: #19438F; text-align: center; line-height: 1.05; }
-  .l-gov .gt { flex: 1; min-width: 0; } .l-gov .gt1 { font-size: 13px; font-weight: 800; } .l-gov .gt2 { font-size: 11px; opacity: .9; margin-top: 2px; line-height: 1.35; }
-  .l-gov .gbtn { background: #fff; color: #19438F; font-size: 12.5px; font-weight: 800; padding: 8px 13px; border-radius: 10px; flex-shrink: 0; }
   .l-tabs { display: flex; align-items: center; gap: 18px; padding: 16px 16px 0; border-bottom: 1px solid #f0f0f0; overflow-x: auto; scrollbar-width: none; position: sticky; top: 0; background: #fff; z-index: 5; } .l-tabs::-webkit-scrollbar { display:none; }
   .l-tabic { color: #555; font-size: 22px; flex-shrink: 0; }
   .l-tab { flex-shrink: 0; font-size: 15px; font-weight: 700; color: #999; padding: 4px 0 12px; border-bottom: 3px solid transparent; white-space: nowrap; cursor: pointer; }
@@ -268,9 +264,14 @@ const RESTS = {
   shopee:  { name:'แซ่บเวอร์ ซีฟู้ด & ตำมั่ว', loc:'- บางน้ำจืด', cover:32, photo:31 },
 };
 const IMG = {
-  21:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Kuai-tiao_rat_na_mu.JPG/330px-Kuai-tiao_rat_na_mu.JPG',
-  22:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Pad_see_ew.jpg/330px-Pad_see_ew.jpg',
-  23:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Boat_noodles.jpg/330px-Boat_noodles.jpg',
+  21:'https://www.ryoiireview.com/upload/article/202103/1617090124_2c2e276ba9aa187493f6696676fe0743.jpg',
+  22:'https://s359.kapook.com/pagebuilder/09a92003-6eb9-4d67-b0b5-5334af7bc019.jpg',
+  23:'https://img.salehere.co.th/p/1200x0/2021/06/04/qoc3uisvfoap.jpg',
+  24:'https://images.lifestyleasia.com/wp-content/uploads/sites/8/2023/08/04213028/%E0%B8%9A%E0%B8%B0%E0%B8%AB%E0%B8%A1%E0%B8%B5%E0%B9%88%E0%B9%80%E0%B8%81%E0%B8%B5%E0%B9%8A%E0%B8%A2%E0%B8%A7-%E0%B9%84%E0%B8%88%E0%B9%8A-560x560.jpg',
+  25:'https://img.kapook.com/u/surauch/movie2/shutterstock_67514674.jpg',
+  26:'https://f.ptcdn.info/558/055/000/p28ew1k3ukBQeHEZOxz-o.jpg',
+  27:'https://obs-ect.line-scdn.net/r/ect/ect/cj0xbDRvZDlzaXJvaGxhJnM9anA2JnQ9bSZ1PTFnMDZqMWtuNDRqMDAmaT0w',
+  28:'https://cdn-cms.cpbrandsite.com/web/recipe/ewaphyupwuo2dcbco7s4suh9ojaibnhzc3ssy9pw.png',
   31:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/2013_Tam_Lao.jpg/330px-2013_Tam_Lao.jpg',
   32:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/LaoFood_LarbNeua.JPG/330px-LaoFood_LarbNeua.JPG',
   38:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Lao_cuisine_ricebasket.jpg/330px-Lao_cuisine_ricebasket.jpg',
@@ -392,7 +393,6 @@ function layoutLineman(){
         '<div><div class="l-vt1">Up to ฿50 ส่วนลด</div><div class="l-vt2">No min. spend</div></div></div><div class="vr">Remove</div></div>'+
       '<div class="l-vch"><div class="vl"><div class="l-vcoin" style="background:#F0A500"><iconify-icon icon="mdi:currency-btc"></iconify-icon></div>'+
         '<div><div class="l-vt1">15% cashback</div><div class="l-vt2" style="color:#999;font-weight:600">Min. spend ฿90</div></div></div><div class="vr">Apply</div></div></div>'+
-    '<div class="l-gov"><div class="gl">ไทย<br>ช่วยไทย</div><div class="gt"><div class="gt1">ร้านนี้ร่วม ไทยช่วยไทย พลัส (60/40)</div><div class="gt2">กดที่นี่เพื่อรับสิทธิผ่านแอปเป๋าตัง</div></div><div class="gbtn">ใช้สิทธิ</div></div>'+
     ingreenHTML()+
     '<div class="l-tabs"><iconify-icon class="l-tabic" icon="mdi:magnify"></iconify-icon><iconify-icon class="l-tabic" icon="mdi:format-list-bulleted"></iconify-icon>'+
       '<div class="l-tab active" onclick="lmScroll(\'reorder\')">สั่งอีกครั้ง</div><div class="l-tab" onclick="lmScroll(\'popular\')">เมนูดัง คนสั่งเยอะ</div><div class="l-tab" onclick="lmScroll(\'rec\')">เมนูแนะนำ</div></div>'+
