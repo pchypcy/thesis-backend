@@ -43,6 +43,23 @@
   .sw.on { background: var(--brand); }
   .sw .knob { position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: left .2s; box-shadow: 0 1px 3px rgba(0,0,0,.3); }
   .sw.on .knob { left: 21px; }
+  /* ── ♻️ บรรจุภัณฑ์รักษ์โลก ── */
+  .ecochip { display: inline-flex; align-items: center; gap: 4px; margin-top: 5px; font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 20px; line-height: 1.3; }
+  .ecochip iconify-icon { font-size: 12px; }
+  .ecochip.eco  { background: #E7F6E1; color: #1f7a3a; }
+  .ecochip.good { background: #EAF4FB; color: #1667a8; }
+  .ecochip.poor { background: #FFF3E0; color: #B26A00; }
+  .ecochip.bad  { background: #FDECEA; color: #C62828; }
+  .ecochip.unknown { background: #f1f1f1; color: #888; }
+  .ecostrip { display: none; margin: 10px 14px 0; background: #F4FBEE; border: 1.5px solid #CDE9B6; border-radius: 16px; padding: 12px 14px; }
+  .ecostrip.show { display: block; }
+  .eco-h { font-size: 13px; font-weight: 800; color: #1B5E37; display: flex; align-items: center; gap: 6px; }
+  .eco-h .eco-src { font-size: 10.5px; font-weight: 700; color: #5a8f5a; background: #fff; border: 1px solid #CDE9B6; border-radius: 10px; padding: 1px 7px; margin-left: auto; }
+  .eco-row { display: flex; align-items: center; gap: 10px; cursor: pointer; margin-top: 11px; font-size: 12.5px; font-weight: 700; color: #33502f; }
+  .eco-row > span { flex: 1; display: flex; align-items: center; gap: 7px; }
+  .eco-row iconify-icon { font-size: 16px; color: #2D8048; }
+  .eco-note { margin-top: 11px; font-size: 10.5px; line-height: 1.45; color: #6a7a68; display: flex; align-items: flex-start; gap: 5px; }
+  .eco-note b { color: #1f7a3a; }
 
   /* shared InGreen strip */
   .ingreen { margin: 14px 14px 0; border-radius: 16px; padding: 13px; display: flex; align-items: center; gap: 11px; cursor: pointer; background: #F4FBEE; border: 1.5px solid #CDE9B6; }
@@ -315,9 +332,38 @@ function healthLine(r){ if(!r) return '';
   if(!r.safe) return '<div class="galert bad"><span class="ldot"></span>แพ้: '+r.hits.join(', ')+(r.max_severity?(' ('+sevTH(r.max_severity)+')'):'')+'</div>';
   if((r.health_flags||[]).length>0) return '<div class="gflags">'+r.health_flags.map(f=>'<span class="gflag">'+(FLAG_LABEL[f]||f)+'</span>').join('')+'</div>';
   return '<div class="galert good"><iconify-icon icon="mdi:check-circle"></iconify-icon> เหมาะกับคุณ</div>'; }
+
+/* ── ♻️ บรรจุภัณฑ์รักษ์โลก (ต่อยอด Green Profile scope: sustainability) ── */
+const PKG = { // วัสดุบรรจุภัณฑ์จริงของแต่ละเมนู (id → material)
+  1:'bagasse',2:'paper',3:'bagasse',4:'paper',5:'bagasse',6:'leaf',7:'paper',8:'bagasse',9:'paper',10:'plastic',11:'plastic',12:'leaf',
+  21:'paper',22:'paper',23:'plastic',24:'plastic',25:'plastic',26:'bagasse',27:'foam',28:'paper',
+  31:'plastic',32:'bagasse',33:'plastic',34:'paper',35:'paper',36:'plastic',37:'bagasse',38:'plastic' };
+const PKG_INFO = {
+  bagasse: { label:'กล่องชานอ้อย', tier:'eco',  icon:'mdi:sprout' },
+  leaf:    { label:'ห่อใบตอง',      tier:'eco',  icon:'mdi:leaf' },
+  paper:   { label:'กล่องกระดาษ',   tier:'good', icon:'mdi:recycle' },
+  plastic: { label:'กล่องพลาสติก',  tier:'poor', icon:'mdi:alert-outline' },
+  foam:    { label:'กล่องโฟม',      tier:'bad',  icon:'mdi:alert-octagon-outline' },
+  unknown: { label:'ไม่ระบุ',       tier:'unknown', icon:'mdi:help-circle-outline' } };
+const pkgOf = (m)=>PKG_INFO[PKG[m.id]]||PKG_INFO.unknown;
+const ECO_RANK = { eco:0, good:1, unknown:2, poor:3, bad:4 };
+function ecoRank(m){ const t=pkgOf(m).tier; return (t in ECO_RANK)?ECO_RANK[t]:2; }
+// แสดง "วัสดุจริง" (ไม่ใช่แค่ป้ายเขียว) = โปร่งใส กันฟอกเขียว
+function ecoBadge(m){ const p=pkgOf(m); return '<div class="ecochip '+p.tier+'"><iconify-icon icon="'+p.icon+'"></iconify-icon>'+p.label+'</div>'; }
+let ecoFirst = false, noCutlery = false;
+function toggleEcoFirst(){ ecoFirst=!ecoFirst; const s=$('eco-sw1'); if(s)s.classList.toggle('on',ecoFirst); renderMenu(); toast(ecoFirst?'จัดเมนูบรรจุภัณฑ์รักษ์โลกขึ้นก่อน 🌱':'เรียงตามร้านปกติ'); }
+function toggleCutlery(){ noCutlery=!noCutlery; const s=$('eco-sw2'); if(s)s.classList.toggle('on',noCutlery); toast(noCutlery?'จะไม่รับช้อนส้อมพลาสติก — ช่วยลดขยะ 🌱':'จะรับช้อนส้อมพลาสติกตามปกติ'); }
+function ecoStripHTML(){ return '<div class="ecostrip" id="ecostrip">'+
+  '<div class="eco-h"><iconify-icon icon="mdi:sprout" width="17"></iconify-icon> ตัวเลือกรักษ์โลก <span class="eco-src">จากโปรไฟล์ InGreen</span></div>'+
+  '<div class="eco-row" onclick="toggleEcoFirst()"><span><iconify-icon icon="mdi:sort-variant"></iconify-icon> จัดเมนูบรรจุภัณฑ์รักษ์โลกขึ้นก่อน</span><div class="sw" id="eco-sw1"><div class="knob"></div></div></div>'+
+  '<div class="eco-row" onclick="toggleCutlery()"><span><iconify-icon icon="mdi:silverware-fork-knife"></iconify-icon> ไม่รับช้อนส้อมพลาสติก</span><div class="sw" id="eco-sw2"><div class="knob"></div></div></div>'+
+  '<div class="eco-note"><iconify-icon icon="mdi:information-outline"></iconify-icon> จัดอันดับจาก<b>วัสดุบรรจุภัณฑ์จริง</b> ไม่ใช่แค่ติดป้ายเขียว</div></div>'; }
+
 // ── ตัวกรอง "ซ่อนเมนูที่แพ้" ──
 let hideAllergic = false;
-function menuList(){ return hideAllergic ? MENU.filter(m=>!(HEALTH[m.name] && HEALTH[m.name].safe===false)) : MENU; }
+function menuList(){ let list = hideAllergic ? MENU.filter(m=>!(HEALTH[m.name] && HEALTH[m.name].safe===false)) : MENU.slice();
+  if(ecoFirst) list.sort((a,b)=>ecoRank(a)-ecoRank(b));   // เมนูบรรจุภัณฑ์รักษ์โลกขึ้นก่อน
+  return list; }
 function updateFilterBar(){ const bar=$('filterbar'); if(!bar) return;
   const n=MENU.filter(m=>HEALTH[m.name] && HEALTH[m.name].safe===false).length;
   if(n>0){ bar.classList.add('show'); $('fb-count').textContent='พบ '+n+' เมนูที่คุณแพ้'; } else { bar.classList.remove('show'); hideAllergic=false; }
@@ -334,8 +380,12 @@ function doConnect(){ const consent=$('in-consent').value.trim(); if(!consent){ 
 function bindHold(){ const rt=$('rest-title'); if(!rt) return; let h; const s=()=>{ h=setTimeout(()=>{ openConnect(); $('adv').classList.add('show'); toast('โหมดนักพัฒนา'); },700); }; const e=()=>clearTimeout(h);
   rt.addEventListener('mousedown',s); rt.addEventListener('touchstart',s,{passive:true}); rt.addEventListener('mouseup',e); rt.addEventListener('mouseleave',e); rt.addEventListener('touchend',e); }
 function setConn(connected){ const el=$('conn'); if(!el) return;
-  if(connected){ el.classList.add('on'); $('conn-t1').innerHTML='<iconify-icon icon="mdi:check-decagram" style="color:#2D8048"></iconify-icon> เชื่อม InGreen แล้ว'; $('conn-t2').textContent='เมนูถูกปรับให้เหมาะกับสุขภาพคุณแล้ว'; $('conn-cta').textContent='รีเฟรช'; }
-  else { el.classList.remove('on'); $('conn-t1').innerHTML='<iconify-icon icon="mdi:link-variant"></iconify-icon> เชื่อมบัญชี InGreen'; $('conn-t2').textContent='เตือนเมนูที่คุณแพ้ และแนะนำเมนูที่ดีต่อสุขภาพ เฉพาะคุณ'; $('conn-cta').textContent='เชื่อม'; } }
+  const es=$('ecostrip'), s1=$('eco-sw1'), s2=$('eco-sw2');
+  if(connected){ el.classList.add('on'); $('conn-t1').innerHTML='<iconify-icon icon="mdi:check-decagram" style="color:#2D8048"></iconify-icon> เชื่อม InGreen แล้ว'; $('conn-t2').textContent='เมนูถูกปรับให้เหมาะกับสุขภาพและความรักษ์โลกของคุณแล้ว'; $('conn-cta').textContent='รีเฟรช';
+    // profile.sustainability: prefer_eco_packaging + decline_plastic_cutlery = true → ตั้งค่าเริ่มต้นให้
+    ecoFirst=true; noCutlery=true; if(es)es.classList.add('show'); if(s1)s1.classList.add('on'); if(s2)s2.classList.add('on'); }
+  else { el.classList.remove('on'); $('conn-t1').innerHTML='<iconify-icon icon="mdi:link-variant"></iconify-icon> เชื่อมบัญชี InGreen'; $('conn-t2').textContent='เตือนเมนูที่คุณแพ้ และแนะนำเมนูที่ดีต่อสุขภาพ เฉพาะคุณ'; $('conn-cta').textContent='เชื่อม';
+    ecoFirst=false; noCutlery=false; if(es)es.classList.remove('show'); if(s1)s1.classList.remove('on'); if(s2)s2.classList.remove('on'); } }
 function banner(msg){ const b=$('banner'); if(!b) return; if(!msg){ b.classList.remove('show'); return; } $('banner-text').textContent=msg; b.classList.add('show'); }
 
 /* ── shared InGreen strip HTML ── */
@@ -344,7 +394,8 @@ function ingreenHTML(){ return '<div class="ingreen" id="conn" onclick="onConnCl
   '<div class="it2" id="conn-t2">เตือนเมนูที่คุณแพ้ และแนะนำเมนูที่ดีต่อสุขภาพ เฉพาะคุณ</div></div><div class="icta" id="conn-cta">เชื่อม</div></div>'+
   '<div class="banner" id="banner"><iconify-icon icon="mdi:lock-alert"></iconify-icon><span id="banner-text"></span></div>'+
   '<div class="filterbar" id="filterbar"><div class="fb-l"><span class="fb-dot"></span><span id="fb-count">มีเมนูที่คุณแพ้</span></div>'+
-  '<div class="fb-toggle" onclick="toggleHideAllergic()"><span>ซ่อนเมนูที่แพ้</span><div class="sw" id="fb-sw"><div class="knob"></div></div></div></div>'; }
+  '<div class="fb-toggle" onclick="toggleHideAllergic()"><span>ซ่อนเมนูที่แพ้</span><div class="sw" id="fb-sw"><div class="knob"></div></div></div></div>'+
+  ecoStripHTML(); }
 
 /* ===== GrabFood layout ===== */
 function layoutGrab(){
@@ -377,7 +428,7 @@ function renderGrab(){
       '<div class="add" style="position:absolute;right:11px;bottom:11px;width:30px;height:30px;border-radius:50%;font-size:21px" onclick="ADD('+m.id+')">+</div></div>'; }).join('');
   $('grid').innerHTML = menuList().map(m=>{ const r=HEALTH[m.name]; const seller=(m.seller && !(r&&!r.safe))?'<div class="g-seller">ยอดสั่งเยอะที่สุด</div>':'';
     return '<div class="g-card"><div class="g-tw">'+seller+healthBadge(r)+thumbImg(m,'g-thumb')+'<div class="add" onclick="ADD('+m.id+')">+</div></div>'+
-      '<div class="g-body"><div class="g-name">'+m.name+'</div><div class="g-price">฿'+m.price+'</div>'+(r?healthLine(r):'')+'</div></div>'; }).join('');
+      '<div class="g-body"><div class="g-name">'+m.name+'</div><div class="g-price">฿'+m.price+'</div>'+ecoBadge(m)+(r?healthLine(r):'')+'</div></div>'; }).join('');
 }
 
 /* ===== LINE MAN layout ===== */
@@ -408,7 +459,7 @@ window.lmScroll=(id)=>{ const el=$('lm-'+id); if(el) el.scrollIntoView({behavior
   document.querySelectorAll('.l-tab').forEach(t=>t.classList.remove('active'));
   const map={reorder:0,popular:1,rec:2}; const tabs=document.querySelectorAll('.l-tab'); if(tabs[map[id]]) tabs[map[id]].classList.add('active'); };
 function lmRow(m){ const r=HEALTH[m.name];
-  return '<div class="l-row"><div class="l-rinfo"><div class="l-rname">'+m.name+'</div><div class="l-rdesc">'+m.desc+'</div><div class="l-rprice">฿'+m.price+'</div>'+(r?healthLine(r):'')+'</div>'+
+  return '<div class="l-row"><div class="l-rinfo"><div class="l-rname">'+m.name+'</div><div class="l-rdesc">'+m.desc+'</div><div class="l-rprice">฿'+m.price+'</div>'+ecoBadge(m)+(r?healthLine(r):'')+'</div>'+
     '<div class="l-rtw">'+healthBadge(r)+thumbImg(m,'l-rthumb')+'<div class="add" onclick="ADD('+m.id+')">+</div></div></div>'; }
 function renderLineman(){
   const reorder=[MENU[0],MENU[3]], popular=MENU.filter(m=>m.seller), rec=menuList();
@@ -455,7 +506,7 @@ function renderShopee(){
       '<div class="s-fbottom"><div class="s-fprice">฿'+m.price+'<s>฿'+old+'</s></div><div class="s-notify">เตือนฉัน</div></div></div></div>'; }).join('');
   $('s-grid').innerHTML = menuList().map(m=>{ const r=HEALTH[m.name]; const seller=(m.seller && !(r&&!r.safe))?'<div class="seller">สั่งเยอะที่สุด</div>':'';
     return '<div class="s-card"><div class="s-tw">'+seller+healthBadge(r)+thumbImg(m,'s-thumb')+'<div class="add" onclick="ADD('+m.id+')">+</div></div>'+
-      '<div class="s-body"><div class="s-name">'+m.name+'</div><div class="s-sold">'+(10+m.id)+' ขายแล้ว</div><div class="s-price">฿'+m.price+'</div>'+(r?healthLine(r):'')+'</div></div>'; }).join('');
+      '<div class="s-body"><div class="s-name">'+m.name+'</div><div class="s-sold">'+(10+m.id)+' ขายแล้ว</div><div class="s-price">฿'+m.price+'</div>'+ecoBadge(m)+(r?healthLine(r):'')+'</div></div>'; }).join('');
 }
 
 /* ── brand switch ── */
@@ -475,7 +526,7 @@ async function getRecs(){
   try {
     const res=await fetch(c.base+'/api/partner/v1/green-check',{ method:'POST',
       headers:{ 'Content-Type':'application/json','Authorization':'Bearer '+c.key,'X-Consent-Token':c.consent,'ngrok-skip-browser-warning':'true' },
-      body: JSON.stringify({ items: MENU.map(m=>({ name:m.name, ingredients:m.ingredients, kcal:m.kcal, sodium_mg:m.sodium_mg, sugar_g:m.sugar_g })) }), });
+      body: JSON.stringify({ items: MENU.map(m=>({ name:m.name, ingredients:m.ingredients, kcal:m.kcal, sodium_mg:m.sodium_mg, sugar_g:m.sugar_g, packaging: PKG[m.id], tags:m.tags||[] })) }), });
     if(res.status===403){ setConn(false); HEALTH={}; renderMenu(); updateFilterBar(); banner('การเชื่อมต่อถูกยกเลิก — ไม่มีคำแนะนำส่วนตัว'); toast('การเชื่อมต่อถูกยกเลิก'); return; }
     if(!res.ok){ const e=await res.json().catch(()=>({})); toast('เชื่อมต่อไม่สำเร็จ: '+(e.message||e.error||res.status)); return; }
     const data=await res.json();

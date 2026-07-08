@@ -68,6 +68,11 @@ function buildGreenProfile(user, hp, scopes = []) {
             chemicals_avoided: (user && user.impactStats && user.impactStats.chemicals) || 0,
             plastics_avoided:  (user && user.impactStats && user.impactStats.plastics)  || 0,
             min_green_score:   70,
+            // ── ต่อยอด: ความชอบด้านบรรจุภัณฑ์รักษ์โลก (partner ใช้จัดอันดับ/ตั้งค่าเริ่มต้น) ──
+            //   ผู้ใช้ที่ยอมแชร์ scope sustainability = ให้ความสำคัญกับความยั่งยืน จึงตั้งค่าเริ่มต้นเป็น true
+            prefer_eco_packaging:    true,   // อยากได้ร้าน/เมนูที่บรรจุภัณฑ์รักษ์โลกก่อน
+            decline_plastic_cutlery: true,   // ไม่รับช้อนส้อมพลาสติกเป็นค่าเริ่มต้น
+            packaging_ranking: ['bagasse', 'leaf', 'paper', 'reusable', 'plastic', 'foam'],
         };
     }
 
@@ -92,8 +97,8 @@ function computeGreenScore(item = {}) {
     let s = 60;
 
     const pkg = String(item.packaging || '').toLowerCase();
-    if (/(compost|biodegrad|leaf|banana)/.test(pkg)) s += 28;
-    else if (/(paper|carton|reusable|bring|none)/.test(pkg)) s += 12;
+    if (/(compost|biodegrad|leaf|banana|bagasse|sugarcane|cornstarch)/.test(pkg)) s += 28;
+    else if (/(paper|carton|kraft|reusable|bring|none)/.test(pkg)) s += 12;
     else if (/(styro|foam)/.test(pkg)) s -= 26;
     else if (/(plastic)/.test(pkg)) s -= 16;
 
@@ -107,6 +112,17 @@ function computeGreenScore(item = {}) {
     if (ings.some(i => /beef|pork/.test(i))) s -= 6;
 
     return Math.max(0, Math.min(100, Math.round(s)));
+}
+
+// ── ข้อมูลบรรจุภัณฑ์ (แสดง "วัสดุจริง" = โปร่งใส กันฟอกเขียว) ─────────────────
+function packagingInfo(pkg) {
+    const p = String(pkg || '').toLowerCase();
+    if (/(bagasse|sugarcane|cornstarch)/.test(p))      return { material: p, label: 'กล่องชานอ้อย', tier: 'eco',  eco_delta: 28 };
+    if (/(leaf|banana|compost|biodegrad)/.test(p))     return { material: p, label: 'บรรจุภัณฑ์ย่อยสลายได้', tier: 'eco',  eco_delta: 28 };
+    if (/(paper|carton|kraft|reusable|bring)/.test(p)) return { material: p, label: 'กล่องกระดาษ/ใช้ซ้ำ', tier: 'good', eco_delta: 12 };
+    if (/(styro|foam)/.test(p))                        return { material: p, label: 'กล่องโฟม', tier: 'bad',  eco_delta: -26 };
+    if (/(plastic)/.test(p))                           return { material: p, label: 'กล่องพลาสติก', tier: 'poor', eco_delta: -16 };
+    return { material: p || 'unknown', label: 'ไม่ระบุบรรจุภัณฑ์', tier: 'unknown', eco_delta: 0 };
 }
 
 // ── ธงเตือนสุขภาพ เทียบกับเป้าหมายของผู้ใช้ ─────────────────────────────────
@@ -142,6 +158,7 @@ function greenCheck(items, user, hp) {
         const maxSeverity = chk.highestUserSeverity || chk.highestBaseSeverity || null;
         const flags = healthFlags(it, hp);
         const score = computeGreenScore(it);
+        const pkg = packagingInfo(it.packaging);
 
         let recommendation;
         if (chk.hasMatch) recommendation = 'avoid';
@@ -157,6 +174,12 @@ function greenCheck(items, user, hp) {
             },
             health_flags: flags,
             green_score: score,
+            eco: {
+                packaging: pkg.material,
+                packaging_label: pkg.label,
+                packaging_tier: pkg.tier,          // eco | good | poor | bad | unknown
+                eco_friendly: pkg.tier === 'eco' || pkg.tier === 'good',
+            },
             recommendation,
         };
     });
@@ -164,4 +187,4 @@ function greenCheck(items, user, hp) {
     return { subject: anonId(user && user.username), results };
 }
 
-module.exports = { SCOPES, anonId, buildGreenProfile, computeGreenScore, healthFlags, greenCheck };
+module.exports = { SCOPES, anonId, buildGreenProfile, computeGreenScore, packagingInfo, healthFlags, greenCheck };
