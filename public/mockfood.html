@@ -63,6 +63,9 @@
   .eco-row { display: flex; align-items: center; gap: 10px; cursor: pointer; margin-top: 11px; font-size: 12.5px; font-weight: 700; color: #33502f; }
   .eco-row > span { flex: 1; display: flex; align-items: center; gap: 7px; }
   .eco-row iconify-icon { font-size: 16px; color: #2D8048; }
+  .eco-row.alert { color: #b23b3b; border-bottom: 1px solid #E0EDD3; padding-bottom: 12px; }
+  .eco-row.alert iconify-icon { color: #E53935; }
+  .eco-row.alert b { color: #E53935; }
   .eco-note { margin-top: 11px; font-size: 10.5px; line-height: 1.45; color: #6a7a68; display: flex; align-items: flex-start; gap: 5px; }
   .eco-note b { color: #1f7a3a; }
   .ecoimpact { position: absolute; left: 12px; right: 12px; bottom: 62px; background: #1f7a3a; color: #fff; border-radius: 13px; padding: 10px 14px; font-size: 12.5px; font-weight: 800; display: flex; align-items: center; gap: 7px; box-shadow: 0 6px 18px rgba(31,122,58,.35); z-index: 6; animation: ecopop .25s ease; }
@@ -345,15 +348,16 @@ function healthLine(r){ if(!r) return '';
   return '<div class="galert good"><iconify-icon icon="mdi:check-circle"></iconify-icon> เหมาะกับคุณ</div>'; }
 
 /* ── ♻️ บรรจุภัณฑ์รักษ์โลก (ต่อยอด Green Profile scope: sustainability) ── */
-const PKG = { // วัสดุบรรจุภัณฑ์จริงของแต่ละเมนู (id → material)
-  1:'bagasse',2:'paper',3:'bagasse',4:'paper',5:'bagasse',6:'leaf',7:'paper',8:'bagasse',9:'paper',10:'plastic',11:'plastic',12:'leaf',
+const PKG = { // วัสดุบรรจุภัณฑ์จริงของแต่ละเมนู (id → material) — cup = เครื่องดื่ม (แก้ว)
+  1:'bagasse',2:'paper',3:'bagasse',4:'paper',5:'bagasse',6:'leaf',7:'paper',8:'bagasse',9:'paper',10:'cup',11:'cup',12:'leaf',
   21:'paper',22:'paper',23:'plastic',24:'plastic',25:'plastic',26:'bagasse',27:'foam',28:'paper',
-  31:'plastic',32:'bagasse',33:'plastic',34:'paper',35:'paper',36:'plastic',37:'bagasse',38:'plastic' };
+  31:'plastic',32:'bagasse',33:'plastic',34:'paper',35:'paper',36:'plastic',37:'bagasse',38:'cup' };
 const PKG_INFO = {
   bagasse: { label:'กล่องชานอ้อย', tier:'eco',  icon:'mdi:sprout' },
   leaf:    { label:'ห่อใบตอง',      tier:'eco',  icon:'mdi:leaf' },
   paper:   { label:'กล่องกระดาษ',   tier:'good', icon:'mdi:recycle' },
   plastic: { label:'กล่องพลาสติก',  tier:'poor', icon:'mdi:alert-outline' },
+  cup:     { label:'แก้วพลาสติก',   tier:'poor', icon:'mdi:cup-outline' },
   foam:    { label:'กล่องโฟม',      tier:'bad',  icon:'mdi:alert-octagon-outline' },
   unknown: { label:'ไม่ระบุ',       tier:'unknown', icon:'mdi:help-circle-outline' } };
 const pkgOf = (m)=>PKG_INFO[PKG[m.id]]||PKG_INFO.unknown;
@@ -373,19 +377,20 @@ function renderEcoImpact(){ ensureEcoImpact(); const el=$('ecoimpact'), t=$('eco
 function toggleEcoFirst(){ ecoFirst=!ecoFirst; const s=$('eco-sw1'); if(s)s.classList.toggle('on',ecoFirst); renderMenu(); toast(ecoFirst?'จัดเมนูบรรจุภัณฑ์รักษ์โลกขึ้นก่อน 🌱':'เรียงตามร้านปกติ'); }
 function toggleCutlery(){ noCutlery=!noCutlery; const s=$('eco-sw2'); if(s)s.classList.toggle('on',noCutlery); toast(noCutlery?'จะไม่รับช้อนส้อมพลาสติก — ช่วยลดขยะ 🌱':'จะรับช้อนส้อมพลาสติกตามปกติ'); }
 function ecoStripHTML(){ return '<div class="ecostrip" id="ecostrip">'+
-  '<div class="eco-h"><iconify-icon icon="mdi:sprout" width="17"></iconify-icon> ตัวเลือกรักษ์โลก <span class="eco-src">จากโปรไฟล์ InGreen</span></div>'+
+  '<div class="eco-h"><iconify-icon icon="mdi:tune-variant" width="16"></iconify-icon> ปรับแต่งเมนูโดย InGreen <span class="eco-src">จากโปรไฟล์คุณ</span></div>'+
+  '<div class="eco-row alert" id="eco-allergyrow" style="display:none" onclick="toggleHideAllergic()"><span><iconify-icon icon="mdi:alert-circle-outline"></iconify-icon> ซ่อนเมนูที่คุณแพ้ <b id="eco-allergyn"></b></span><div class="sw" id="fb-sw"><div class="knob"></div></div></div>'+
   '<div class="eco-row" onclick="toggleEcoFirst()"><span><iconify-icon icon="mdi:sort-variant"></iconify-icon> จัดเมนูบรรจุภัณฑ์รักษ์โลกขึ้นก่อน</span><div class="sw" id="eco-sw1"><div class="knob"></div></div></div>'+
   '<div class="eco-row" onclick="toggleCutlery()"><span><iconify-icon icon="mdi:silverware-fork-knife"></iconify-icon> ไม่รับช้อนส้อมพลาสติก</span><div class="sw" id="eco-sw2"><div class="knob"></div></div></div>'+
-  '<div class="eco-note"><iconify-icon icon="mdi:information-outline"></iconify-icon> จัดอันดับจาก<b>วัสดุบรรจุภัณฑ์จริง</b> ไม่ใช่แค่ติดป้ายเขียว</div></div>'; }
+  '<div class="eco-note"><iconify-icon icon="mdi:information-outline"></iconify-icon> จัดอันดับจาก<b>วัสดุบรรจุภัณฑ์จริง</b></div></div>'; }
 
 // ── ตัวกรอง "ซ่อนเมนูที่แพ้" ──
 let hideAllergic = false;
 function menuList(){ let list = hideAllergic ? MENU.filter(m=>!(HEALTH[m.name] && HEALTH[m.name].safe===false)) : MENU.slice();
   if(ecoFirst) list.sort((a,b)=>ecoRank(a)-ecoRank(b));   // เมนูบรรจุภัณฑ์รักษ์โลกขึ้นก่อน
   return list; }
-function updateFilterBar(){ const bar=$('filterbar'); if(!bar) return;
+function updateFilterBar(){ const row=$('eco-allergyrow'); if(!row) return;
   const n=MENU.filter(m=>HEALTH[m.name] && HEALTH[m.name].safe===false).length;
-  if(n>0){ bar.classList.add('show'); $('fb-count').textContent='พบ '+n+' เมนูที่คุณแพ้'; } else { bar.classList.remove('show'); hideAllergic=false; }
+  if(n>0){ row.style.display='flex'; const b=$('eco-allergyn'); if(b) b.textContent='('+n+')'; } else { row.style.display='none'; hideAllergic=false; }
   const sw=$('fb-sw'); if(sw) sw.classList.toggle('on', hideAllergic); }
 function toggleHideAllergic(){ hideAllergic=!hideAllergic; const sw=$('fb-sw'); if(sw) sw.classList.toggle('on',hideAllergic); renderMenu(); }
 
@@ -414,8 +419,6 @@ function ingreenHTML(){ return '<div class="ingreen" id="conn" onclick="onConnCl
   '<div class="itxt"><div class="it1" id="conn-t1"><iconify-icon icon="mdi:link-variant"></iconify-icon> เชื่อมบัญชี InGreen</div>'+
   '<div class="it2" id="conn-t2">เตือนเมนูที่คุณแพ้ และแนะนำเมนูที่ดีต่อสุขภาพ เฉพาะคุณ</div></div><div class="icta" id="conn-cta">เชื่อม</div></div>'+
   '<div class="banner" id="banner"><iconify-icon icon="mdi:lock-alert"></iconify-icon><span id="banner-text"></span></div>'+
-  '<div class="filterbar" id="filterbar"><div class="fb-l"><span class="fb-dot"></span><span id="fb-count">มีเมนูที่คุณแพ้</span></div>'+
-  '<div class="fb-toggle" onclick="toggleHideAllergic()"><span>ซ่อนเมนูที่แพ้</span><div class="sw" id="fb-sw"><div class="knob"></div></div></div></div>'+
   ecoStripHTML(); }
 
 /* ===== GrabFood layout ===== */

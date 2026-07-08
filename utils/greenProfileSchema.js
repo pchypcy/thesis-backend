@@ -100,7 +100,7 @@ function computeGreenScore(item = {}) {
     if (/(compost|biodegrad|leaf|banana|bagasse|sugarcane|cornstarch)/.test(pkg)) s += 28;
     else if (/(paper|carton|kraft|reusable|bring|none)/.test(pkg)) s += 12;
     else if (/(styro|foam)/.test(pkg)) s -= 26;
-    else if (/(plastic)/.test(pkg)) s -= 16;
+    else if (/(plastic|cup)/.test(pkg)) s -= 16;
 
     const tags = (item.tags || []).map(t => String(t).toLowerCase());
     if (tags.includes('organic')) s += 8;
@@ -121,6 +121,7 @@ function packagingInfo(pkg) {
     if (/(leaf|banana|compost|biodegrad)/.test(p))     return { material: p, label: 'บรรจุภัณฑ์ย่อยสลายได้', tier: 'eco',  eco_delta: 28 };
     if (/(paper|carton|kraft|reusable|bring)/.test(p)) return { material: p, label: 'กล่องกระดาษ/ใช้ซ้ำ', tier: 'good', eco_delta: 12 };
     if (/(styro|foam)/.test(p))                        return { material: p, label: 'กล่องโฟม', tier: 'bad',  eco_delta: -26 };
+    if (/(cup)/.test(p))                               return { material: p, label: 'แก้วพลาสติก', tier: 'poor', eco_delta: -16 };
     if (/(plastic)/.test(p))                           return { material: p, label: 'กล่องพลาสติก', tier: 'poor', eco_delta: -16 };
     return { material: p || 'unknown', label: 'ไม่ระบุบรรจุภัณฑ์', tier: 'unknown', eco_delta: 0 };
 }
