@@ -5,10 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Food Delivery</title>
 <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2/dist/iconify-icon.min.js"></script>
+<!-- ล็อกฟอนต์ให้ตรงกับแอป InGreen (IBM Plex Sans Thai) — เหมือนกันทุกเครื่อง -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 <style>
   :root { --brand: #00B14F; --ingreen: #2D8048; }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body { font-family: 'Segoe UI', system-ui, 'Sukhumvit Set', sans-serif; background: #E9ECEF; color: #1b1b1b; display: flex; justify-content: center; padding: 14px; }
+  body { font-family: 'IBM Plex Sans Thai', 'Segoe UI', system-ui, sans-serif; background: #E9ECEF; color: #1b1b1b; display: flex; justify-content: center; padding: 14px; }
+  button, input, select, textarea { font-family: 'IBM Plex Sans Thai', 'Segoe UI', system-ui, sans-serif; }
   .app { width: 100%; max-width: 430px; background: #fff; border-radius: 28px; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,.18); position: relative; padding-bottom: 70px; }
   img { display: block; }
 
@@ -60,6 +65,8 @@
   .eco-row iconify-icon { font-size: 16px; color: #2D8048; }
   .eco-note { margin-top: 11px; font-size: 10.5px; line-height: 1.45; color: #6a7a68; display: flex; align-items: flex-start; gap: 5px; }
   .eco-note b { color: #1f7a3a; }
+  .ecoimpact { position: absolute; left: 12px; right: 12px; bottom: 62px; background: #1f7a3a; color: #fff; border-radius: 13px; padding: 10px 14px; font-size: 12.5px; font-weight: 800; display: flex; align-items: center; gap: 7px; box-shadow: 0 6px 18px rgba(31,122,58,.35); z-index: 6; animation: ecopop .25s ease; }
+  @keyframes ecopop { from { transform: translateY(8px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
   /* shared InGreen strip */
   .ingreen { margin: 14px 14px 0; border-radius: 16px; padding: 13px; display: flex; align-items: center; gap: 11px; cursor: pointer; background: #F4FBEE; border: 1.5px solid #CDE9B6; }
@@ -319,7 +326,11 @@ function getCfg(){ try { return { ...DEFAULTS, ...JSON.parse(localStorage.getIte
 function setCfg(c){ localStorage.setItem('mockfood_cfg', JSON.stringify(c)); }
 function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(window._tt); window._tt=setTimeout(()=>t.classList.remove('show'),1900); }
 function sevTH(s){ return ({mild:'เล็กน้อย',medium:'ปานกลาง',severe:'รุนแรง'})[s]||s; }
-function addToCart(m){ cart++; cartTotal+=m.price; const n=$('cart-n'),t=$('cart-total'); if(n)n.textContent=cart; if(t)t.textContent='฿'+cartTotal; toast('เพิ่ม “'+m.name+'” ลงตะกร้า'); }
+function addToCart(m){ cart++; cartTotal+=m.price; const n=$('cart-n'),t=$('cart-total'); if(n)n.textContent=cart; if(t)t.textContent='฿'+cartTotal;
+  // นับพลาสติกที่ลดได้: ไม่รับช้อนส้อม (+1) + เลือกเมนูกล่องรักษ์โลกแทนพลาสติก (+1) — เฉพาะตอนเชื่อม InGreen
+  let saved=0; if(CONNECTED){ if(noCutlery) saved+=1; if(pkgOf(m).tier==='eco') saved+=1; }
+  if(saved>0){ plasticSaved+=saved; renderEcoImpact(); }
+  toast('เพิ่ม “'+m.name+'” ลงตะกร้า'+(saved>0?' · 🌱 ลดพลาสติก +'+saved:'')); }
 window.ADD=(id)=>{ const m=MENU.find(x=>x.id===id); if(m) addToCart(m); };
 window.imgFallback=(el,emoji)=>{ el.outerHTML='<div class="'+el.className+' emoji">'+emoji+'</div>'; };
 function thumbImg(m,cls){ return '<img class="'+cls+'" src="'+imgFor(m)+'" referrerpolicy="no-referrer" loading="lazy" onerror="imgFallback(this,\''+m.emoji+'\')" />'; }
@@ -350,7 +361,15 @@ const ECO_RANK = { eco:0, good:1, unknown:2, poor:3, bad:4 };
 function ecoRank(m){ const t=pkgOf(m).tier; return (t in ECO_RANK)?ECO_RANK[t]:2; }
 // แสดง "วัสดุจริง" (ไม่ใช่แค่ป้ายเขียว) = โปร่งใส กันฟอกเขียว
 function ecoBadge(m){ const p=pkgOf(m); return '<div class="ecochip '+p.tier+'"><iconify-icon icon="'+p.icon+'"></iconify-icon>'+p.label+'</div>'; }
-let ecoFirst = false, noCutlery = false;
+let ecoFirst = false, noCutlery = false, CONNECTED = false, plasticSaved = 0;
+// ตัวนับ "ช่วยลดขยะพลาสติก" — โผล่เหนือแถบตะกร้าเมื่อสั่งของแบบรักษ์โลก
+function ensureEcoImpact(){ if($('ecoimpact')) return; const cb=document.querySelector('.cartbar'); if(!cb||!cb.parentElement) return;
+  const d=document.createElement('div'); d.className='ecoimpact'; d.id='ecoimpact'; d.style.display='none';
+  d.innerHTML='<iconify-icon icon="mdi:sprout" width="17"></iconify-icon><span id="ecoimpact-t"></span>';
+  cb.parentElement.insertBefore(d, cb); }
+function renderEcoImpact(){ ensureEcoImpact(); const el=$('ecoimpact'), t=$('ecoimpact-t'); if(!el) return;
+  if(CONNECTED && plasticSaved>0){ t.textContent='ช่วยลดขยะพลาสติกไปแล้ว '+plasticSaved+' ชิ้น'; el.style.display='flex'; }
+  else { el.style.display='none'; } }
 function toggleEcoFirst(){ ecoFirst=!ecoFirst; const s=$('eco-sw1'); if(s)s.classList.toggle('on',ecoFirst); renderMenu(); toast(ecoFirst?'จัดเมนูบรรจุภัณฑ์รักษ์โลกขึ้นก่อน 🌱':'เรียงตามร้านปกติ'); }
 function toggleCutlery(){ noCutlery=!noCutlery; const s=$('eco-sw2'); if(s)s.classList.toggle('on',noCutlery); toast(noCutlery?'จะไม่รับช้อนส้อมพลาสติก — ช่วยลดขยะ 🌱':'จะรับช้อนส้อมพลาสติกตามปกติ'); }
 function ecoStripHTML(){ return '<div class="ecostrip" id="ecostrip">'+
@@ -380,12 +399,14 @@ function doConnect(){ const consent=$('in-consent').value.trim(); if(!consent){ 
 function bindHold(){ const rt=$('rest-title'); if(!rt) return; let h; const s=()=>{ h=setTimeout(()=>{ openConnect(); $('adv').classList.add('show'); toast('โหมดนักพัฒนา'); },700); }; const e=()=>clearTimeout(h);
   rt.addEventListener('mousedown',s); rt.addEventListener('touchstart',s,{passive:true}); rt.addEventListener('mouseup',e); rt.addEventListener('mouseleave',e); rt.addEventListener('touchend',e); }
 function setConn(connected){ const el=$('conn'); if(!el) return;
+  CONNECTED = connected;
   const es=$('ecostrip'), s1=$('eco-sw1'), s2=$('eco-sw2');
   if(connected){ el.classList.add('on'); $('conn-t1').innerHTML='<iconify-icon icon="mdi:check-decagram" style="color:#2D8048"></iconify-icon> เชื่อม InGreen แล้ว'; $('conn-t2').textContent='เมนูถูกปรับให้เหมาะกับสุขภาพและความรักษ์โลกของคุณแล้ว'; $('conn-cta').textContent='รีเฟรช';
     // profile.sustainability: prefer_eco_packaging + decline_plastic_cutlery = true → ตั้งค่าเริ่มต้นให้
     ecoFirst=true; noCutlery=true; if(es)es.classList.add('show'); if(s1)s1.classList.add('on'); if(s2)s2.classList.add('on'); }
   else { el.classList.remove('on'); $('conn-t1').innerHTML='<iconify-icon icon="mdi:link-variant"></iconify-icon> เชื่อมบัญชี InGreen'; $('conn-t2').textContent='เตือนเมนูที่คุณแพ้ และแนะนำเมนูที่ดีต่อสุขภาพ เฉพาะคุณ'; $('conn-cta').textContent='เชื่อม';
-    ecoFirst=false; noCutlery=false; if(es)es.classList.remove('show'); if(s1)s1.classList.remove('on'); if(s2)s2.classList.remove('on'); } }
+    ecoFirst=false; noCutlery=false; if(es)es.classList.remove('show'); if(s1)s1.classList.remove('on'); if(s2)s2.classList.remove('on'); }
+  renderEcoImpact(); }
 function banner(msg){ const b=$('banner'); if(!b) return; if(!msg){ b.classList.remove('show'); return; } $('banner-text').textContent=msg; b.classList.add('show'); }
 
 /* ── shared InGreen strip HTML ── */
