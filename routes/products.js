@@ -198,6 +198,8 @@ router.get('/pending/list', async (req, res) => {
         const limit = Math.min(parseInt(req.query.limit || '50', 10), 200);
         const cfg = await getVotingConfig();
         const now = new Date();
+        // ★ ถ้าส่ง username มา → บอกได้ว่า "คนนี้โหวตไปทางไหนแล้ว" เพื่อให้ UI เปลี่ยนปุ่มได้
+        const me = (req.query.username || '').trim();
 
         const docs = await Product.find({ verification_status: 'pending' })
             .sort({ createdAt: -1 })
@@ -230,6 +232,10 @@ router.get('/pending/list', async (req, res) => {
                 vote_window_ends_at: p.vote_window_ends_at,
                 seconds_left: secondsLeft,
                 needs_admin_review: p.needs_admin_review,
+                // ★ สถานะการโหวตของผู้ใช้คนที่เรียก — ให้ UI เปลี่ยนปุ่มเป็น "คุณโหวตแล้ว"
+                my_vote: me ? ((p.vote_log || []).find(v => v.username === me)?.vote || null) : null,
+                has_voted: me ? (p.voters || []).includes(me) : false,
+                is_own_submission: me ? p.submitted_by === me : false,
             });
         }
         return res.json({ success: true, total: items.length, items, config: cfg });
