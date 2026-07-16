@@ -81,10 +81,32 @@ VipSubscriptionSchema.virtual('daysRemaining').get(function() {
     return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
 });
 
+// ── Helper: วันหมดสิทธิ์ทดลองใช้ — "ครบ N วันเต็ม แล้วตัดเที่ยงคืนไทยถัดไป" ──
+//
+// หลักการ (ยึดประโยชน์ผู้ใช้เป็นหลัก):
+//   1) ผู้ใช้ต้องได้ครบ N วันเต็ม (N×24 ชม.) เสมอ — ไม่ว่าจะสมัครเวลาไหน
+//   2) แล้วปัดขึ้นไปหมดที่ "เที่ยงคืนเวลาไทย (UTC+7)" ถัดไป — เวลาตัดคาดเดาได้ สื่อสารง่าย
+//   → ได้ใช้จริง 72–96 ชม. (ไม่มีใครได้น้อยกว่าที่โฆษณา)
+//
+// ไทยไม่มี DST → ออฟเซ็ตคงที่ +7 เสมอ
+// ตัวอย่าง: สมัคร 1 ก.ค. 23:50 (ไทย) → ครบ 72 ชม. = 4 ก.ค. 23:50 → ตัด 5 ก.ค. 00:00 (ไทย)
+const TH_OFFSET_MS = 7 * 60 * 60 * 1000;
+function thaiMidnightAfterFullDays(days, from = new Date()) {
+    const target = new Date(from.getTime() + days * 24 * 60 * 60 * 1000); // ครบ N วันเต็มก่อน
+    const th = new Date(target.getTime() + TH_OFFSET_MS);                 // เลื่อนเป็นเวลาไทย
+    const y = th.getUTCFullYear(), m = th.getUTCMonth(), d = th.getUTCDate();
+    // ถ้าครบพอดีที่เที่ยงคืนไทยอยู่แล้ว → ใช้เลย; ไม่งั้นปัดขึ้นเที่ยงคืนถัดไป
+    const exactMidnight = th.getUTCHours() === 0 && th.getUTCMinutes() === 0 &&
+                          th.getUTCSeconds() === 0 && th.getUTCMilliseconds() === 0;
+    return new Date(Date.UTC(y, m, d + (exactMidnight ? 0 : 1)) - TH_OFFSET_MS);
+}
+VipSubscriptionSchema.statics.thaiMidnightAfterFullDays = thaiMidnightAfterFullDays;
+
 // ── Static Method: เริ่ม trial ────────────────────────────────────────────
 // เรียกตอน user สมัครสมาชิกใหม่
+// ★ ได้ครบ 3 วันเต็มเสมอ แล้วตัดที่เที่ยงคืนเวลาไทยถัดไป
 VipSubscriptionSchema.statics.startTrial = async function(username, trialDays = 3) {
-    const trialEndsAt = new Date(Date.now() + trialDays * 24 * 60 * 60 * 1000);
+    const trialEndsAt = thaiMidnightAfterFullDays(trialDays);
     return this.findOneAndUpdate(
         { username },
         { $setOnInsert: { username, status: 'trial', trialStartedAt: new Date(), trialEndsAt } },

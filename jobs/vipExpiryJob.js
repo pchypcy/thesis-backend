@@ -18,9 +18,10 @@ const Notification         = require('../models/Notification');
 const NotificationPreference = require('../models/NotificationPreference');
 const { getConfig }        = require('../routes/config');
 
-// YYYY-MM-DD (UTC) สำหรับ dedupeKey ของ reminder รายวัน
+// YYYY-MM-DD ตาม "เวลาไทย" (UTC+7) สำหรับ dedupeKey ของ reminder รายวัน
+// ★ ใช้วันแบบไทย ให้สอดคล้องกับการตัดสิทธิ์ที่เที่ยงคืนเวลาไทย
 function dayStamp(date = new Date()) {
-    return date.toISOString().slice(0, 10);
+    return new Date(date.getTime() + 7 * 60 * 60 * 1000).toISOString().slice(0, 10);
 }
 
 // ── (1)+(2) ตัดสิทธิ์ที่หมดอายุ ────────────────────────────────────────────
