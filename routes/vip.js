@@ -23,6 +23,7 @@ const CouponQuota      = require('../models/CouponQuota');
 const Coupon           = require('../models/Coupon');
 const { getConfig }    = require('./config');
 const { runVipExpiryCheck, getLastRun } = require('../jobs/vipExpiryJob'); // ★ SPRINT 7
+const { fmtThaiDateTime, fmtThaiRange } = require('../utils/thaiDate');    // ★ แสดงวันที่แบบไทย
 
 // ─── (1) GET /api/vip/status/:username ────────────────────────────────────────
 // ตรวจว่า user เป็น VIP อยู่ไหม และหมดอายุเมื่อไหร่
@@ -64,14 +65,38 @@ router.get('/status/:username', async (req, res) => {
             await VipSubscription.updateOne({ _id: sub._id }, { $set: { status: 'expired' } });
         }
 
+        // ★ ทำให้ "เริ่มวันไหน หมดวันไหน ตัดยังไง" ชัดเจน (แสดงเป็นเวลาไทย พ.ศ.)
+        const isTrial   = sub.status === 'trial';
+        const startRaw  = isTrial ? sub.trialStartedAt : sub.startedAt;
+        const endRaw    = isTrial ? sub.trialEndsAt    : sub.expiresAt;
+        const hoursRemaining = endRaw ? Math.max(0, Math.round((new Date(endRaw) - new Date()) / 36e5)) : 0;
+
         return res.json({
             success:       true,
             isVip,
             status:        sub.status,
             daysRemaining,
+            hoursRemaining,
             expiresAt:     sub.expiresAt ? sub.expiresAt.toISOString() : null,
             trialEndsAt:   sub.trialEndsAt ? sub.trialEndsAt.toISOString() : null,
             startedAt:     sub.startedAt ? sub.startedAt.toISOString() : null,
+            trialStartedAt: sub.trialStartedAt ? sub.trialStartedAt.toISOString() : null,
+
+            // ── สรุปให้อ่านเข้าใจทันที (เวลาไทย) ──
+            period: {
+                type:        isTrial ? 'ทดลองใช้ฟรี 3 วัน' : 'สมาชิก VIP 30 วัน',
+                startedAtTH: fmtThaiDateTime(startRaw),   // เริ่มเมื่อไหร่
+                endsAtTH:    fmtThaiDateTime(endRaw),     // หมดเมื่อไหร่
+                rangeTH:     fmtThaiRange(startRaw, endRaw),
+                remainingTH: isVip ? `เหลืออีก ${hoursRemaining} ชั่วโมง` : 'หมดสิทธิ์แล้ว',
+            },
+            expiryPolicy: isTrial
+                ? 'ได้ใช้ครบ 3 วันเต็ม (72 ชม.) แล้วระบบตัดสิทธิ์ที่เที่ยงคืนถัดไปตามเวลาไทย (UTC+7) โดยอัตโนมัติ'
+                : 'สมาชิกมีผล 30 วันนับจากวันชำระเงิน แล้วระบบตัดสิทธิ์อัตโนมัติเมื่อครบกำหนด',
+            expiredInfo: sub.expiredByJobAt ? {
+                expiredByJobAtTH: fmtThaiDateTime(sub.expiredByJobAt),  // ระบบตัดเมื่อไหร่
+                reason:           sub.expiryReason,                      // ตัดเพราะอะไร
+            } : null,
         });
 
     } catch (err) {

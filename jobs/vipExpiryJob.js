@@ -17,6 +17,7 @@ const VipSubscription      = require('../models/VipSubscription');
 const Notification         = require('../models/Notification');
 const NotificationPreference = require('../models/NotificationPreference');
 const { getConfig }        = require('../routes/config');
+const { fmtThaiDate, fmtThaiDateTime, fmtThaiRange } = require('../utils/thaiDate'); // ★ วันที่แบบไทย
 
 // YYYY-MM-DD ตาม "เวลาไทย" (UTC+7) สำหรับ dedupeKey ของ reminder รายวัน
 // ★ ใช้วันแบบไทย ให้สอดคล้องกับการตัดสิทธิ์ที่เที่ยงคืนเวลาไทย
@@ -46,9 +47,12 @@ async function expireEnded(now) {
             username: sub.username,
             type:     'vip_expired',
             title:    'ทดลองใช้ VIP หมดอายุแล้ว',
-            message:  'ช่วงทดลองใช้ VIP 3 วันของคุณสิ้นสุดแล้ว สมัคร VIP เพื่อใช้ Sugar Tracker และฟีเจอร์พิเศษต่อ',
+            // ★ ระบุช่วงเวลาให้ชัด: เริ่มวันไหน–หมดวันไหน
+            message:  `ช่วงทดลองใช้ VIP 3 วัน (${fmtThaiRange(sub.trialStartedAt, sub.trialEndsAt)}) ` +
+                      `สิ้นสุดแล้วเมื่อ ${fmtThaiDateTime(sub.trialEndsAt)} ` +
+                      `สมัคร VIP เพื่อใช้ Sugar Tracker และฟีเจอร์พิเศษต่อ`,
             severity: 'warning',
-            data:     { reason: 'trial_ended' },
+            data:     { reason: 'trial_ended', trialStartedAt: sub.trialStartedAt, trialEndsAt: sub.trialEndsAt },
             dedupeKey: `vip_expired:${sub.username}:${dayStamp(now)}`,
         });
     }
@@ -112,9 +116,12 @@ async function remindExpiringSoon(now) {
             username: sub.username,
             type:     'vip_trial_reminder',
             title:    'ทดลองใช้ VIP จะหมดในอีก 1 วัน',
-            message:  `ช่วงทดลองใช้ฟรีของคุณจะสิ้นสุดในอีกประมาณ ${hoursLeft} ชั่วโมง สมัคร VIP เพื่อใช้งานต่อโดยไม่สะดุด`,
+            // ★ ระบุวันเริ่ม + วันหมดแบบเป๊ะ (เวลาไทย) ไม่ใช่แค่ "อีกกี่ชั่วโมง"
+            message:  `ทดลองใช้ฟรีของคุณ (เริ่ม ${fmtThaiDate(sub.trialStartedAt)}) ` +
+                      `จะสิ้นสุด ${fmtThaiDateTime(sub.trialEndsAt)} — เหลืออีกประมาณ ${hoursLeft} ชั่วโมง ` +
+                      `สมัคร VIP เพื่อใช้งานต่อโดยไม่สะดุด`,
             severity: 'info',
-            data:     { trialEndsAt: sub.trialEndsAt, hoursLeft },
+            data:     { trialStartedAt: sub.trialStartedAt, trialEndsAt: sub.trialEndsAt, hoursLeft },
             // dedupeKey รายวัน — กันส่งซ้ำถ้า job รันหลายรอบในวันเดียว
             dedupeKey: `vip_trial_reminder:${sub.username}:${dayStamp(now)}`,
         });
