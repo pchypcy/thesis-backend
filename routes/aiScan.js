@@ -96,8 +96,10 @@ const RECEIPT_PROMPT = [
     'ถ้าอ่านราคาไม่ชัดให้ประมาณการและลด confidence ถ้ารูปไม่ใช่ใบเสร็จให้ items เป็น []',
 ].join('\n');
 
-function parseReceiptJson(text) {
-    let jsonStr = (text || '').trim();
+function parseReceiptJson(text, ctx = '') {
+    const raw = (text || '').trim();
+    if (!raw) throw new Error(`empty_response${ctx ? '(' + ctx + ')' : ''}`);
+    let jsonStr = raw;
     const fence = /```(?:json)?\s*([\s\S]*?)```/i.exec(jsonStr);
     if (fence) jsonStr = fence[1].trim();
     else {
@@ -106,7 +108,10 @@ function parseReceiptJson(text) {
     }
     let parsed;
     try { parsed = JSON.parse(jsonStr); }
-    catch (e) { throw new Error('parse_failed'); }
+    catch (e) {
+        const head = raw.slice(0, 160).replace(/\s+/g, ' ');
+        throw new Error(`parse_failed${ctx ? '(' + ctx + ')' : ''} head="${head}"`);
+    }
     return normalizeReceipt(parsed);
 }
 
@@ -123,15 +128,17 @@ async function geminiOCR(imageBase64, mimeType) {
                 { text: RECEIPT_PROMPT },
             ],
         }],
-        generationConfig: { temperature: 0.2, maxOutputTokens: 1500, responseMimeType: 'application/json' },
+        generationConfig: { temperature: 0.2, maxOutputTokens: 8192, responseMimeType: 'application/json' },
     }, {
         headers: { 'content-type': 'application/json' },
-        timeout: 28000,
+        timeout: 30000,
     });
 
-    const text = (resp.data?.candidates?.[0]?.content?.parts || [])
+    const cand = resp.data?.candidates?.[0];
+    const finish = cand?.finishReason || 'none';
+    const text = (cand?.content?.parts || [])
         .map((p) => p.text).filter(Boolean).join('\n');
-    return parseReceiptJson(text);
+    return parseReceiptJson(text, `gemini finish=${finish},len=${text.length}`);
 }
 
 // ── Claude vision OCR (ทางเลือก — ต้องเติมเครดิต) ─────────────────────────
