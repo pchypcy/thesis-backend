@@ -26,7 +26,7 @@ const ANTHROPIC_VER   = '2023-06-01';
 const DEFAULT_MODEL   = process.env.AI_SCAN_MODEL || 'claude-sonnet-5';
 
 // Google Gemini (ฟรี — สร้าง key ที่ aistudio.google.com ไม่ต้องผูกบัตร)
-const GEMINI_MODEL    = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+const GEMINI_MODEL    = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
 const geminiUrl = (m) => `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`;
 
 // เลือก provider อัตโนมัติ: Gemini (ฟรี) มาก่อน → Claude → mock
