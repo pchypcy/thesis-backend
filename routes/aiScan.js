@@ -2,60 +2,193 @@
 //
 // Endpoints:
 //   GET  /api/ai-scan/quota/:username        → สถานะโควต้าปัจจุบัน
-//   POST /api/ai-scan/receipt                → สแกนใบเสร็จ (ใช้ Mock OCR / GPT-Vision)
+//   POST /api/ai-scan/receipt                → สแกนใบเสร็จด้วย AI vision
 //
 // Rate limit:
 //   VIP        → 20 ครั้ง/วัน  (reset เที่ยงคืน Bangkok)
 //   Free user  → 1 ครั้ง/2 วัน  (rolling 48h cooldown)
 //
-// คุมต้นทุนได้ชัด: 1 VIP = ฿69/เดือน, ต้นทุน OCR ≈ ฿0.5/scan × 20 × 30 = ฿300/เดือนสูงสุด
-// → break-even เมื่อ user ใช้น้อยกว่า 10 ครั้ง/วัน เฉลี่ย
-//
-// Mock OCR mode: ถ้าไม่มี OPENAI_API_KEY ใน env จะ return ข้อมูล demo
-// Production: เชื่อม GPT-Vision หรือ Tesseract OCR ในส่วน performOCR()
+// AI provider (เลือกอัตโนมัติตาม env key):
+//   1) GEMINI_API_KEY    → Google Gemini vision  (ฟรี — แนะนำ)
+//   2) ANTHROPIC_API_KEY → Claude vision         (เสียเงิน)
+//   3) ไม่มี key เลย       → mock demo             (ระบบไม่พัง)
+// ปรับ model ได้ผ่าน env: GEMINI_MODEL / AI_SCAN_MODEL
 
 const express   = require('express');
+const axios     = require('axios');
 const router    = express.Router();
 const ScanQuota = require('../models/ScanQuota');
 const VipSubscription = require('../models/VipSubscription');
 const { getConfig } = require('./config');
+
+const ANTHROPIC_URL   = 'https://api.anthropic.com/v1/messages';
+const ANTHROPIC_VER   = '2023-06-01';
+const DEFAULT_MODEL   = process.env.AI_SCAN_MODEL || 'claude-sonnet-5';
+
+// Google Gemini (ฟรี — สร้าง key ที่ aistudio.google.com ไม่ต้องผูกบัตร)
+const GEMINI_MODEL    = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+const geminiUrl = (m) => `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`;
+
+// เลือก provider อัตโนมัติ: Gemini (ฟรี) มาก่อน → Claude → mock
+const hasAIKey   = () => !!(process.env.GEMINI_API_KEY || process.env.ANTHROPIC_API_KEY);
+const activeName = () => process.env.GEMINI_API_KEY ? 'gemini' : (process.env.ANTHROPIC_API_KEY ? 'claude' : 'mock');
+const activeModel = () => process.env.GEMINI_API_KEY ? GEMINI_MODEL : (process.env.ANTHROPIC_API_KEY ? DEFAULT_MODEL : null);
 
 async function checkVip(username) {
     const sub = await VipSubscription.findOne({ username });
     return sub ? sub.isActive : false;
 }
 
-// ── Mock OCR (สำหรับ demo / dev ที่ไม่มี OpenAI key) ────────────────────
-// Production: แทนที่ด้วยการเรียก GPT-Vision API จริง
-async function performOCR(/* imageBase64, mimeType */) {
-    // ตัวอย่างข้อมูลใบเสร็จที่ extract ได้
-    const sample = {
-        merchantName: 'Lemon Farm สาขาสุขุมวิท',
-        date:         new Date().toISOString().slice(0, 10),
-        items: [
-            { name: 'นมข้าวโอ๊ตออร์แกนิก 1L',    price: 89,  qty: 1 },
-            { name: 'ขนมปังโฮลวีต 400g',           price: 65,  qty: 1 },
-            { name: 'ไข่ไก่อารมณ์ดี Free-Range 10 ฟอง', price: 119, qty: 1 },
-            { name: 'ผักสลัดออร์แกนิก 200g',       price: 79,  qty: 2 },
-        ],
-        total: 431,
-        currency: 'THB',
-        confidence: 0.94,
-    };
+// ── ดึง base64 ล้วน + media type จาก data-URL ("data:image/jpeg;base64,....") ──
+function stripDataUrl(b64, fallbackMime) {
+    if (!b64) return { data: '', media: fallbackMime || 'image/jpeg' };
+    const m = /^data:([^;]+);base64,(.*)$/s.exec(b64);
+    if (m) return { data: m[2], media: m[1] };
+    return { data: b64, media: fallbackMime || 'image/jpeg' };
+}
 
-    // คำนวณ green score แบบหยาบ (eco-friendly keyword detection)
-    const ecoKeywords = ['organic','ออร์แกนิก','free-range','อารมณ์ดี','whole','wheat','โฮลวีต','plant'];
-    const ecoCount = sample.items.filter(it =>
-        ecoKeywords.some(k => it.name.toLowerCase().includes(k.toLowerCase()))
-    ).length;
-    const greenScore = Math.round((ecoCount / sample.items.length) * 100);
-
+// ── แปลงผล extract ให้อยู่ในรูปแบบเดียวกัน + คำนวณ Green Score ──
+function normalizeReceipt(raw) {
+    if (!raw || !Array.isArray(raw.items) || raw.items.length === 0) {
+        throw new Error('no_items_extracted');
+    }
+    const items = raw.items.map((it) => ({
+        name:  String(it.name || '').trim() || 'รายการสินค้า',
+        qty:   Math.max(1, Math.round(Number(it.qty) || 1)),
+        price: Math.max(0, Math.round((Number(it.price) || 0) * 100) / 100),
+        eco:   !!it.eco,
+        reason: it.reason ? String(it.reason).slice(0, 120) : '',
+    }));
+    const ecoCount = items.filter((it) => it.eco).length;
+    const greenScore = Math.round((ecoCount / items.length) * 100);
+    let total = Number(raw.total);
+    if (!isFinite(total) || total <= 0) {
+        total = items.reduce((s, it) => s + it.price * it.qty, 0);
+    }
     return {
-        ...sample,
+        merchantName: String(raw.merchantName || 'ร้านค้า').slice(0, 80),
+        date:         raw.date || new Date().toISOString().slice(0, 10),
+        items,
+        total:        Math.round(total * 100) / 100,
+        currency:     raw.currency || 'THB',
+        confidence:   typeof raw.confidence === 'number' ? raw.confidence : 0.8,
         greenScore,
         ecoItemCount: ecoCount,
-        suggestedPoints: ecoCount * 10,
+        suggestedPoints: Math.min(100, ecoCount * 10),
     };
+}
+
+// ── prompt + ตัวแยก JSON ที่ใช้ร่วมกันทุก provider ────────────────────────
+const RECEIPT_PROMPT = [
+    'คุณคือผู้ช่วยอ่านใบเสร็จของแอป InGreen อ่านรูปใบเสร็จนี้ (ไทย/อังกฤษ) แล้วส่งกลับเป็น JSON เท่านั้น',
+    'ห้ามมีข้อความอื่นนอก JSON, ห้ามใส่ ```',
+    'โครงสร้าง:',
+    '{',
+    '  "merchantName": "ชื่อร้าน",',
+    '  "date": "YYYY-MM-DD หรือ null",',
+    '  "currency": "THB",',
+    '  "items": [{ "name": "ชื่อสินค้า", "qty": จำนวน, "price": ราคารวมของบรรทัดนั้นเป็นบาท, "eco": true/false, "reason": "เหตุผลสั้นๆ" }],',
+    '  "total": ยอดรวมเป็นตัวเลข,',
+    '  "confidence": 0.0-1.0',
+    '}',
+    'กำหนด eco=true เมื่อสินค้าเป็นมิตรต่อสิ่งแวดล้อม/สุขภาพ เช่น ออร์แกนิก, ปลอดสารพิษ, plant-based/มังสวิรัติ, free-range/ไข่อารมณ์ดี, โฮลเกรน/โฮลวีต, ผักผลไม้สด, สินค้ารีฟิล/ลดบรรจุภัณฑ์, ถุงผ้า',
+    'eco=false เมื่อเป็นของแปรรูปสูง, น้ำอัดลม/ขนมหวาน, พลาสติกใช้ครั้งเดียว',
+    'ถ้าอ่านราคาไม่ชัดให้ประมาณการและลด confidence ถ้ารูปไม่ใช่ใบเสร็จให้ items เป็น []',
+].join('\n');
+
+function parseReceiptJson(text) {
+    let jsonStr = (text || '').trim();
+    const fence = /```(?:json)?\s*([\s\S]*?)```/i.exec(jsonStr);
+    if (fence) jsonStr = fence[1].trim();
+    else {
+        const s = jsonStr.indexOf('{'), e = jsonStr.lastIndexOf('}');
+        if (s !== -1 && e !== -1) jsonStr = jsonStr.slice(s, e + 1);
+    }
+    let parsed;
+    try { parsed = JSON.parse(jsonStr); }
+    catch (e) { throw new Error('parse_failed'); }
+    return normalizeReceipt(parsed);
+}
+
+// ── Google Gemini vision OCR (ฟรี — ไม่ต้องผูกบัตร) ───────────────────────
+async function geminiOCR(imageBase64, mimeType) {
+    const { data: b64, media } = stripDataUrl(imageBase64, mimeType);
+    if (!b64) throw new Error('empty_image');
+    const mediaType = mimeType || media || 'image/jpeg';
+
+    const resp = await axios.post(`${geminiUrl(GEMINI_MODEL)}?key=${process.env.GEMINI_API_KEY}`, {
+        contents: [{
+            parts: [
+                { inline_data: { mime_type: mediaType, data: b64 } },
+                { text: RECEIPT_PROMPT },
+            ],
+        }],
+        generationConfig: { temperature: 0.2, maxOutputTokens: 1500, responseMimeType: 'application/json' },
+    }, {
+        headers: { 'content-type': 'application/json' },
+        timeout: 28000,
+    });
+
+    const text = (resp.data?.candidates?.[0]?.content?.parts || [])
+        .map((p) => p.text).filter(Boolean).join('\n');
+    return parseReceiptJson(text);
+}
+
+// ── Claude vision OCR (ทางเลือก — ต้องเติมเครดิต) ─────────────────────────
+async function claudeOCR(imageBase64, mimeType) {
+    const { data: b64, media } = stripDataUrl(imageBase64, mimeType);
+    if (!b64) throw new Error('empty_image');
+    const mediaType = mimeType || media || 'image/jpeg';
+
+    const resp = await axios.post(ANTHROPIC_URL, {
+        model: DEFAULT_MODEL,
+        max_tokens: 1500,
+        messages: [{
+            role: 'user',
+            content: [
+                { type: 'image', source: { type: 'base64', media_type: mediaType, data: b64 } },
+                { type: 'text', text: RECEIPT_PROMPT },
+            ],
+        }],
+    }, {
+        headers: {
+            'x-api-key': process.env.ANTHROPIC_API_KEY,
+            'anthropic-version': ANTHROPIC_VER,
+            'content-type': 'application/json',
+        },
+        timeout: 28000,
+    });
+
+    const text = (resp.data?.content || [])
+        .filter((c) => c.type === 'text')
+        .map((c) => c.text)
+        .join('\n');
+    return parseReceiptJson(text);
+}
+
+// ── Mock OCR (fallback สำหรับ demo / dev ที่ไม่มี AI key) ─────────────────
+function mockOCR() {
+    return normalizeReceipt({
+        merchantName: 'Lemon Farm สาขาสุขุมวิท',
+        date:         new Date().toISOString().slice(0, 10),
+        currency:     'THB',
+        items: [
+            { name: 'นมข้าวโอ๊ตออร์แกนิก 1L',            price: 89,  qty: 1, eco: true,  reason: 'ออร์แกนิก plant-based' },
+            { name: 'ขนมปังโฮลวีต 400g',                  price: 65,  qty: 1, eco: true,  reason: 'โฮลวีต' },
+            { name: 'ไข่ไก่อารมณ์ดี Free-Range 10 ฟอง',   price: 119, qty: 1, eco: true,  reason: 'free-range' },
+            { name: 'น้ำอัดลม 1.5L',                       price: 32,  qty: 1, eco: false, reason: 'น้ำตาลสูง' },
+        ],
+        total: 305,
+        confidence: 0.94,
+    });
+}
+
+// performOCR: เลือก provider อัตโนมัติ — Gemini (ฟรี) → Claude → mock
+//   (visionOCR อาจ throw เมื่ออ่านไม่ได้ → handler จะคืนโควตาให้)
+async function performOCR(imageBase64, mimeType) {
+    if (process.env.GEMINI_API_KEY)    return await geminiOCR(imageBase64, mimeType);
+    if (process.env.ANTHROPIC_API_KEY) return await claudeOCR(imageBase64, mimeType);
+    return mockOCR();
 }
 
 // ── GET /api/ai-scan/quota/:username ─────────────────────────────────────
@@ -82,10 +215,13 @@ router.get('/quota/:username', async (req, res) => {
 // Body: { username, imageBase64?, mimeType? }
 router.post('/receipt', async (req, res) => {
     try {
-        const { username, imageBase64 } = req.body || {};
+        const { username, imageBase64, mimeType } = req.body || {};
 
         if (!username) {
             return res.status(400).json({ success: false, message: 'กรุณาส่ง username' });
+        }
+        if (hasAIKey() && !imageBase64) {
+            return res.status(400).json({ success: false, message: 'กรุณาส่งรูปใบเสร็จ' });
         }
 
         const [isVip, vipPerDay, freeCoolHours] = await Promise.all([
@@ -114,12 +250,26 @@ router.post('/receipt', async (req, res) => {
             });
         }
 
-        // ── Run OCR (mock for demo; production = GPT-Vision) ──
+        // ── Run OCR (Claude vision ถ้ามี key, ไม่งั้น mock) ──
         const t0 = Date.now();
-        const ocrResult = await performOCR(imageBase64);
+        let ocrResult;
+        try {
+            ocrResult = await performOCR(imageBase64, mimeType);
+        } catch (ocrErr) {
+            // AI อ่านไม่สำเร็จ (รูปไม่ชัด/ไม่ใช่ใบเสร็จ/ API ล่ม) → คืนโควตาให้ผู้ใช้
+            await ScanQuota.refund(username, isVip);
+            const reason = ocrErr.message || 'ocr_error';
+            const apiMsg = ocrErr.response?.data?.error?.message;
+            console.error(`🧾 AI scan FAILED: ${username} | ${reason}${apiMsg ? ' | ' + apiMsg : ''}`);
+            const friendly = reason === 'no_items_extracted'
+                ? 'อ่านใบเสร็จไม่ได้ — อาจไม่ใช่รูปใบเสร็จ หรือภาพไม่ชัด ลองถ่ายใหม่ให้เต็มใบและชัดขึ้น'
+                : 'อ่านใบเสร็จไม่สำเร็จ ลองใหม่อีกครั้ง';
+            return res.status(502).json({ success: false, ocrFailed: true, reason, message: `${friendly} (ไม่ถูกหักโควตา)` });
+        }
         const latencyMs = Date.now() - t0;
+        const usingAI = hasAIKey();
 
-        console.log(`🧾 AI scan: ${username} | ${isVip ? 'VIP' : 'FREE'} | items=${ocrResult.items.length} | green=${ocrResult.greenScore}% | ${latencyMs}ms`);
+        console.log(`🧾 AI scan: ${username} | ${isVip ? 'VIP' : 'FREE'} | ${activeName()} | items=${ocrResult.items.length} | green=${ocrResult.greenScore}% | ${latencyMs}ms`);
 
         return res.json({
             success: true,
@@ -131,7 +281,7 @@ router.post('/receipt', async (req, res) => {
                 nextAvailableAt: quota.nextAvailableAt || null,
             },
             receipt: ocrResult,
-            meta: { latencyMs, mock: !process.env.OPENAI_API_KEY },
+            meta: { latencyMs, mock: !usingAI, provider: activeName(), model: activeModel() },
         });
 
     } catch (err) {

@@ -163,5 +163,33 @@ ScanQuotaSchema.statics.getStatus = async function(username, isVip, limits = {})
     };
 };
 
+/**
+ * refund(username, isVip) — คืนโควตา 1 ครั้ง (เรียกเมื่อ OCR ล้มเหลว
+ *   หลัง tryConsume ไปแล้ว เพื่อไม่ให้ผู้ใช้เสียสิทธิ์ฟรีจากความผิดพลาดของระบบ)
+ *   - VIP  : ลด count ลง 1 (ไม่ต่ำกว่า 0)
+ *   - Free : เคลียร์ coolingUntil ให้สแกนใหม่ได้ทันที
+ */
+ScanQuotaSchema.statics.refund = async function(username, isVip) {
+    const now = new Date();
+    try {
+        if (isVip) {
+            const dateKey = getBangkokDateKey(now);
+            await this.findOneAndUpdate(
+                { username, feature: 'ai_receipt', dateKey, count: { $gt: 0 } },
+                { $inc: { count: -1 } }
+            );
+        } else {
+            await this.findOneAndUpdate(
+                { username, feature: 'ai_receipt', dateKey: 'free-window' },
+                { $set: { coolingUntil: null, count: 0 } }
+            );
+        }
+        return true;
+    } catch (e) {
+        console.error('ScanQuota.refund error:', e.message);
+        return false;
+    }
+};
+
 module.exports = mongoose.model('ScanQuota', ScanQuotaSchema);
 module.exports.getBangkokDateKey = getBangkokDateKey;

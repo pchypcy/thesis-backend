@@ -74,6 +74,7 @@ app.use('/api/intake',    intakeRoute);              // ★ SPRINT 2: log-intake
 app.use('/api/health-profile', healthProfileRoute);  // ★ SPRINT 4: allergy detection (FREE feature)
 app.use('/api/notifications',  notificationsRoute);  // ★ SPRINT 4: notification preferences
 app.use('/api/ai-scan',        aiScanRoute);          // ★ SPRINT 5: AI receipt scan (rate-limited)
+app.use('/api/tts',            require('./routes/tts')); // ★ เสียงพูด Neural (Google TTS) + fallback เบราว์เซอร์
 app.use('/api/coupons',        customerConfirmRoute); // ★ SPRINT 5: customer-confirm flow (pending-confirm, confirm, reject)
 app.use('/api/health-report',  healthReportRoute);    // ★ SPRINT 5: VIP monthly health report
 app.use('/api/settlements',    require('./routes/settlements'));   // ★ v3: merchant settlement/payout
