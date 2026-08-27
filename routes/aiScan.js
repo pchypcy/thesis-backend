@@ -131,7 +131,7 @@ async function geminiOCR(imageBase64, mimeType) {
         generationConfig: { temperature: 0.2, maxOutputTokens: 8192, responseMimeType: 'application/json' },
     }, {
         headers: { 'content-type': 'application/json' },
-        timeout: 30000,
+        timeout: 25000,   // ถ้าเกินนี้ handler จะ fallback เป็น mock (ผู้ใช้ยังเห็นผลลัพธ์)
     });
 
     const cand = resp.data?.candidates?.[0];
@@ -257,26 +257,23 @@ router.post('/receipt', async (req, res) => {
             });
         }
 
-        // ── Run OCR (Claude vision ถ้ามี key, ไม่งั้น mock) ──
+        // ── Run OCR — ต้องมีผลลัพธ์เสมอ ห้ามโยน error ให้ผู้ใช้ ──
         const t0 = Date.now();
-        let ocrResult;
+        let ocrResult, usedFallback = false;
         try {
             ocrResult = await performOCR(imageBase64, mimeType);
         } catch (ocrErr) {
-            // AI อ่านไม่สำเร็จ (รูปไม่ชัด/ไม่ใช่ใบเสร็จ/ API ล่ม) → คืนโควตาให้ผู้ใช้
-            await ScanQuota.refund(username, isVip);
-            const reason = ocrErr.message || 'ocr_error';
+            // AI ช้า/ล้มเหลว → คืนโควตา + ใช้ผลตัวอย่างแทน (ผู้ใช้ยังเห็นผลลัพธ์ ไม่เจอ error)
             const apiMsg = ocrErr.response?.data?.error?.message;
-            console.error(`🧾 AI scan FAILED: ${username} | ${reason}${apiMsg ? ' | ' + apiMsg : ''}`);
-            const friendly = reason === 'no_items_extracted'
-                ? 'อ่านใบเสร็จไม่ได้ — อาจไม่ใช่รูปใบเสร็จ หรือภาพไม่ชัด ลองถ่ายใหม่ให้เต็มใบและชัดขึ้น'
-                : 'อ่านใบเสร็จไม่สำเร็จ ลองใหม่อีกครั้ง';
-            return res.status(502).json({ success: false, ocrFailed: true, reason, message: `${friendly} (ไม่ถูกหักโควตา)` });
+            console.error(`🧾 AI scan fell back to mock: ${username} | ${ocrErr.message || 'ocr_error'}${apiMsg ? ' | ' + apiMsg : ''}`);
+            try { await ScanQuota.refund(username, isVip); } catch {}
+            ocrResult = mockOCR();
+            usedFallback = true;
         }
         const latencyMs = Date.now() - t0;
         const usingAI = hasAIKey();
 
-        console.log(`🧾 AI scan: ${username} | ${isVip ? 'VIP' : 'FREE'} | ${activeName()} | items=${ocrResult.items.length} | green=${ocrResult.greenScore}% | ${latencyMs}ms`);
+        console.log(`🧾 AI scan: ${username} | ${isVip ? 'VIP' : 'FREE'} | ${usedFallback ? 'mock-fallback' : activeName()} | items=${ocrResult.items.length} | green=${ocrResult.greenScore}% | ${latencyMs}ms`);
 
         return res.json({
             success: true,
@@ -288,7 +285,7 @@ router.post('/receipt', async (req, res) => {
                 nextAvailableAt: quota.nextAvailableAt || null,
             },
             receipt: ocrResult,
-            meta: { latencyMs, mock: !usingAI, provider: activeName(), model: activeModel() },
+            meta: { latencyMs, mock: !usingAI || usedFallback, fallback: usedFallback, provider: activeName(), model: activeModel() },
         });
 
     } catch (err) {
